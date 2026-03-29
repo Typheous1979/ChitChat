@@ -47,7 +47,7 @@ cd Packages/ChitChatCore && swift build
 ### Running Tests
 
 ```bash
-# All tests (39 tests, 9 suites)
+# All tests (42 tests, 9 suites)
 cd Packages/ChitChatCore && swift test
 
 # Single test suite

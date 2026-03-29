@@ -76,7 +76,7 @@ xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Debug bui
 # Release build (required for Whisper performance)
 xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Release build
 
-# Run tests (39 tests, 9 suites)
+# Run tests (42 tests, 9 suites)
 cd Packages/ChitChatCore && swift test
 ```
 

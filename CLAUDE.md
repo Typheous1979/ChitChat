@@ -17,7 +17,7 @@ xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Release b
 # Build ChitChatCore package only
 cd Packages/ChitChatCore && swift build
 
-# Run all ChitChatCore tests (39 tests, 9 suites)
+# Run all ChitChatCore tests (42 tests, 9 suites)
 cd Packages/ChitChatCore && swift test
 
 # Run a single test suite
@@ -100,7 +100,9 @@ CGEvent Unicode keystrokes are always used for text injection — no automatic c
 - **Accessibility auto-reset** — On startup, if accessibility is denied, the app automatically runs `tccutil reset Accessibility com.justinkalicharan.chitchat` to clear stale TCC entries from previous builds, then re-prompts. Polls every 1 second.
 - **Model readiness guard** — `AppState.isTranscriptionReady` blocks recording if Whisper is selected but no model is downloaded. Shows error message directing user to Settings.
 - **Reactive model status** — `WhisperModelManager.modelChangeCount` is an `@Observable` property incremented on download/delete. Views read it to trigger re-renders for filesystem-dependent state like `isModelDownloaded()`.
+- **Launch at login** — Uses `SMAppService.mainApp.register()/unregister()` via onChange handler. Takes effect immediately when toggled.
 - **Unimplemented settings** — `playFeedbackSounds`, `autoPunctuation`, `autoCapitalization`, `injectionMethod` are disabled in the UI with "Coming soon" tooltips. `addTrailingSpace` IS wired and functional.
+- **Removed dead settings** — `showMenuBarIcon` and `enableLogging` were removed (never used). Old serialized settings with these keys are safely ignored by `JSONDecoder`.
 - **xcodegen** — Run `xcodegen generate` after adding/removing source files to regenerate the `.xcodeproj` from `project.yml`.
 - **gh CLI** — Installed at `~/bin/gh` (not in system PATH). Use full path for GitHub operations.
 
