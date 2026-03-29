@@ -137,3 +137,60 @@ final class MockClipboardService: ClipboardService, @unchecked Sendable {
     func copyToSystemClipboard(entry: ClipboardEntry) async {}
     func clearAll() async { storedEntries.removeAll() }
 }
+
+// MARK: - Mock Hotkey Service
+
+final class MockHotkeyService: HotkeyService, @unchecked Sendable {
+    var currentBinding: HotkeyBinding?
+    var isRegistered = false
+    private var continuation: AsyncStream<HotkeyEvent>.Continuation?
+
+    func register(binding: HotkeyBinding) async throws -> AsyncStream<HotkeyEvent> {
+        currentBinding = binding
+        isRegistered = true
+        return AsyncStream { self.continuation = $0 }
+    }
+
+    func unregister() async {
+        isRegistered = false
+        currentBinding = nil
+        continuation?.finish()
+        continuation = nil
+    }
+
+    func checkPermissions() async -> Bool { true }
+
+    /// Emit a hotkey event from the test side.
+    func emitEvent(_ event: HotkeyEvent) {
+        continuation?.yield(event)
+    }
+}
+
+// MARK: - Mock Voice Profile Service
+
+final class MockVoiceProfileService: VoiceProfileService, @unchecked Sendable {
+    var profiles: [VoiceProfile] = []
+    var activeProfileId: UUID?
+
+    func listProfiles() async -> [VoiceProfile] { profiles }
+
+    func activeProfile() async -> VoiceProfile? {
+        profiles.first(where: { $0.id == activeProfileId })
+    }
+
+    func createProfile(name: String) async throws -> VoiceProfile {
+        let profile = VoiceProfile(name: name)
+        profiles.append(profile)
+        return profile
+    }
+
+    func deleteProfile(id: UUID) async throws {
+        profiles.removeAll(where: { $0.id == id })
+        if activeProfileId == id { activeProfileId = nil }
+    }
+
+    func setActiveProfile(id: UUID) async throws {
+        guard profiles.contains(where: { $0.id == id }) else { return }
+        activeProfileId = id
+    }
+}

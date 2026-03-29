@@ -68,6 +68,9 @@ struct TranscriptionSettingsView: View {
                 }
                 .buttonStyle(.borderless)
             }
+            .onChange(of: apiKeyInput) { _, _ in
+                isApiKeySaved = false
+            }
 
             HStack {
                 Button("Save API Key") {
@@ -166,9 +169,10 @@ struct TranscriptionSettingsView: View {
         }
 
         Section("Model Management") {
-            let selected = appState.settingsManager.settings.whisperModel
-            let isDownloaded = appState.whisperModelManager.isModelDownloaded(selected)
             let manager = appState.whisperModelManager
+            let _ = manager.modelChangeCount // track changes for SwiftUI re-render
+            let selected = appState.settingsManager.settings.whisperModel
+            let isDownloaded = manager.isModelDownloaded(selected)
 
             if manager.isDownloading {
                 // Download in progress

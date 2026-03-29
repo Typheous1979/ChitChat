@@ -132,13 +132,13 @@ struct VoiceTrainingView: View {
 
             HStack {
                 Button {
-                    // Recording will use the audio capture service
-                    // For now, simulate completion for UI development
+                    // Voice recording — coming soon
                 } label: {
-                    Label(isRecording ? "Stop Recording" : "Record Passage", systemImage: isRecording ? "stop.circle.fill" : "mic.circle.fill")
+                    Label("Record Passage", systemImage: "mic.circle.fill")
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(isRecording ? .red : .accentColor)
+                .disabled(true)
+                .help("Coming soon")
 
                 if isRecording {
                     LiveWaveformView(audioLevel: appState.currentAudioLevel)

@@ -29,6 +29,8 @@ struct GeneralSettingsView: View {
                 Toggle("Launch at login", isOn: Bindable(appState.settingsManager).settings.launchAtLogin)
                 Toggle("Show transcription overlay", isOn: Bindable(appState.settingsManager).settings.showTranscriptionOverlay)
                 Toggle("Play feedback sounds", isOn: Bindable(appState.settingsManager).settings.playFeedbackSounds)
+                    .disabled(true)
+                    .help("Coming soon")
             }
 
             Section("Text Injection") {
@@ -37,9 +39,15 @@ struct GeneralSettingsView: View {
                         Text(method.displayName).tag(method)
                     }
                 }
+                .disabled(true)
+                .help("Coming soon")
 
                 Toggle("Auto-punctuation", isOn: Bindable(appState.settingsManager).settings.autoPunctuation)
+                    .disabled(true)
+                    .help("Coming soon — managed by transcription engine")
                 Toggle("Auto-capitalization", isOn: Bindable(appState.settingsManager).settings.autoCapitalization)
+                    .disabled(true)
+                    .help("Coming soon — managed by transcription engine")
                 Toggle("Add trailing space", isOn: Bindable(appState.settingsManager).settings.addTrailingSpace)
             }
 
@@ -47,8 +55,8 @@ struct GeneralSettingsView: View {
                 HStack {
                     Label("Microphone", systemImage: "mic.fill")
                     Spacer()
-                    PermissionStatusBadge(status: PlatformCapabilities.microphoneStatus)
-                    if PlatformCapabilities.microphoneStatus != .granted {
+                    PermissionStatusBadge(status: appState.isMicrophoneGranted ? .granted : .denied)
+                    if !appState.isMicrophoneGranted {
                         Button("Open Settings") {
                             PlatformCapabilities.openMicrophoneSettings()
                         }
@@ -60,8 +68,8 @@ struct GeneralSettingsView: View {
                 HStack {
                     Label("Accessibility", systemImage: "lock.shield")
                     Spacer()
-                    PermissionStatusBadge(status: PlatformCapabilities.accessibilityStatus)
-                    if PlatformCapabilities.accessibilityStatus != .granted {
+                    PermissionStatusBadge(status: appState.isAccessibilityGranted ? .granted : .denied)
+                    if !appState.isAccessibilityGranted {
                         Button("Open Settings") {
                             PlatformCapabilities.openAccessibilitySettings()
                         }

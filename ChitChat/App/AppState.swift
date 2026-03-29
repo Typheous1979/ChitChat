@@ -73,6 +73,14 @@ final class AppState {
         isMicrophoneGranted = await checkMicrophonePermission()
         refreshAccessibilityStatus()
 
+        // If accessibility is not granted, clear any stale TCC entry (from a
+        // previous build with a different code signature) and re-prompt so the
+        // system creates a fresh entry for the current binary.
+        if !isAccessibilityGranted {
+            resetAccessibilityPermission()
+            services.accessibilityService.promptForAccessibility()
+        }
+
         // Start polling accessibility status (it can change at any time via System Settings)
         startPermissionPolling()
 
@@ -88,13 +96,26 @@ final class AppState {
         isAccessibilityGranted = AXIsProcessTrusted()
     }
 
-    /// Poll accessibility permission every 2 seconds so we detect changes
+    /// Clear stale accessibility TCC entry left by a previous build.
+    /// After a rebuild the code signature changes, making the old entry invalid.
+    /// Resetting lets `promptForAccessibility()` create a fresh entry.
+    private func resetAccessibilityPermission() {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+        process.arguments = ["reset", "Accessibility", "com.justinkalicharan.chitchat"]
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        try? process.run()
+        process.waitUntilExit()
+    }
+
+    /// Poll accessibility permission every second so we detect changes
     /// made in System Settings without requiring an app restart.
     private func startPermissionPolling() {
         permissionPollTask?.cancel()
         permissionPollTask = Task { [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(2))
+                try? await Task.sleep(for: .seconds(1))
                 guard let self else { break }
                 let granted = AXIsProcessTrusted()
                 if self.isAccessibilityGranted != granted {
@@ -110,14 +131,13 @@ final class AppState {
         hotkeyTask?.cancel()
 
         let binding = settingsManager.settings.hotkeyBinding
-        let mode = settingsManager.settings.hotkeyMode
-
         do {
             let eventStream = try await services.hotkeyService.register(binding: binding)
 
             hotkeyTask = Task { [weak self] in
                 for await event in eventStream {
                     guard let self else { break }
+                    let mode = self.settingsManager.settings.hotkeyMode
                     await self.handleHotkeyEvent(event, mode: mode)
                 }
             }
@@ -154,6 +174,7 @@ final class AppState {
                     self.currentTranscription = ""
                 case .idle:
                     self.isRecording = false
+                    self.currentTranscription = ""
                 case .error(let message):
                     self.isRecording = false
                     self.currentError = message
@@ -220,6 +241,11 @@ final class AppState {
             connectionTestResult = .success(message)
         case .failure(let error):
             connectionTestResult = .failure(error.localizedDescription)
+        }
+        // Auto-clear after 5 seconds
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(5))
+            connectionTestResult = nil
         }
     }
 

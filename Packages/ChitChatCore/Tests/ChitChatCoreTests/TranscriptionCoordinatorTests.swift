@@ -17,7 +17,7 @@ struct TranscriptionCoordinatorTests {
 
         let service = coordinator.resolveService()
         #expect(service != nil)
-        #expect(service?.engineName == "Deepgram Nova-3")
+        #expect(service?.engineName == "Deepgram nova-3")
         #expect(coordinator.activeEngine == .deepgram)
     }
 
@@ -50,7 +50,7 @@ struct TranscriptionCoordinatorTests {
         let service = coordinator.resolveService()
         #expect(service != nil)
         #expect(coordinator.activeEngine == .deepgram) // Fell back
-        #expect(service?.engineName == "Deepgram Nova-3")
+        #expect(service?.engineName == "Deepgram nova-3")
     }
 
     @Test("Whisper model availability check")

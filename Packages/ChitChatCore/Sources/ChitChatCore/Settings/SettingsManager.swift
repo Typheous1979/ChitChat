@@ -24,8 +24,11 @@ public final class SettingsManager {
     }
 
     private func persist() {
-        if let data = try? JSONEncoder().encode(settings) {
+        do {
+            let data = try JSONEncoder().encode(settings)
             defaults.set(data, forKey: Self.settingsKey)
+        } catch {
+            Log.settings.error("Failed to persist settings: \(error.localizedDescription, privacy: .public)")
         }
     }
 

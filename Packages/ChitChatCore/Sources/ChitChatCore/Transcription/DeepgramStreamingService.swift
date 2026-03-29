@@ -17,7 +17,7 @@ public final class DeepgramStreamingService: TranscriptionService, @unchecked Se
     }
 
     public let supportsStreaming = true
-    public let engineName = "Deepgram Nova-3"
+    public var engineName: String { "Deepgram \(model)" }
 
     public init(apiKey: String, model: String = "nova-3", language: String = "en") {
         self.apiKey = apiKey

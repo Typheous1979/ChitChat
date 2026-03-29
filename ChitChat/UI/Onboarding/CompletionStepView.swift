@@ -23,7 +23,7 @@ struct CompletionStepView: View {
                 .padding(.horizontal, 40)
 
             VStack(alignment: .leading, spacing: 12) {
-                summaryRow(icon: "mic.fill", label: "Microphone", value: appState.settingsManager.settings.selectedMicrophoneId ?? "System Default")
+                summaryRow(icon: "mic.fill", label: "Microphone", value: appState.availableDevices.first(where: { $0.id == appState.settingsManager.settings.selectedMicrophoneId })?.name ?? "System Default")
                 summaryRow(icon: "text.bubble.fill", label: "Engine", value: appState.settingsManager.settings.transcriptionEngine.displayName)
                 summaryRow(icon: "keyboard", label: "Hotkey", value: appState.settingsManager.settings.hotkeyBinding.displayString)
                 summaryRow(icon: "hand.tap.fill", label: "Mode", value: appState.settingsManager.settings.hotkeyMode.displayName)

@@ -32,6 +32,7 @@ public final class DictationOrchestrator: @unchecked Sendable {
     private let textInjection: TextInjectionService
     private let accessibility: AccessibilityService
     private let clipboard: ClipboardService
+    private let settingsManager: SettingsManager
 
     // Internal state
     private let lock = NSLock()
@@ -53,13 +54,15 @@ public final class DictationOrchestrator: @unchecked Sendable {
         transcription: any TranscriptionService,
         textInjection: TextInjectionService,
         accessibility: AccessibilityService,
-        clipboard: ClipboardService
+        clipboard: ClipboardService,
+        settingsManager: SettingsManager
     ) {
         self.audioCapture = audioCapture
         self.transcription = transcription
         self.textInjection = textInjection
         self.accessibility = accessibility
         self.clipboard = clipboard
+        self.settingsManager = settingsManager
     }
 
     // MARK: - Public API
@@ -162,8 +165,14 @@ public final class DictationOrchestrator: @unchecked Sendable {
             let audioStream = try await audioCapture.startCapture(sampleRate: 16000, channels: 1)
             Log.orchestrator.info("Audio capture started")
 
-            // Start transcription session
-            let transcriptionStream = try await transcription.startSession(sampleRate: 16000, channels: 1)
+            // Start transcription session (clean up audio capture on failure)
+            let transcriptionStream: AsyncStream<TranscriptionResult>
+            do {
+                transcriptionStream = try await transcription.startSession(sampleRate: 16000, channels: 1)
+            } catch {
+                await audioCapture.stopCapture()
+                throw error
+            }
             Log.orchestrator.info("Transcription session started")
 
             state = .recording
@@ -237,8 +246,8 @@ public final class DictationOrchestrator: @unchecked Sendable {
         let previousPartialCount = lock.withLock { partialCharacterCount }
 
         if isFinal {
-            // Replace partial with final text, then add trailing space
-            let finalText = text + " "
+            // Replace partial with final text, optionally add trailing space
+            let finalText = settingsManager.settings.addTrailingSpace ? text + " " : text
             _ = await textInjection.injectIncremental(
                 newText: finalText,
                 replacingLast: previousPartialCount

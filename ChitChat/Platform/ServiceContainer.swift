@@ -44,7 +44,8 @@ final class ServiceContainer {
                 transcription: service,
                 textInjection: textInjectionService,
                 accessibility: accessibilityService,
-                clipboard: clipboardService
+                clipboard: clipboardService,
+                settingsManager: settingsManager
             )
         } else {
             // No transcription service available — create with a placeholder
@@ -54,7 +55,8 @@ final class ServiceContainer {
                 transcription: PlaceholderTranscriptionService(),
                 textInjection: textInjectionService,
                 accessibility: accessibilityService,
-                clipboard: clipboardService
+                clipboard: clipboardService,
+                settingsManager: settingsManager
             )
         }
     }
@@ -62,6 +64,11 @@ final class ServiceContainer {
     /// Rebuild the transcription coordinator and orchestrator when settings change
     /// (new API key, engine switch). Call this after saving an API key.
     func rebuildTranscription() {
+        guard !dictationOrchestrator.isActive else {
+            Log.orchestrator.warning("Cannot rebuild transcription while dictation is active")
+            return
+        }
+
         let deepgramKey = keychain.get("deepgram_api_key")
         let whisperPath = Self.whisperModelPath(for: settingsManager.settings.whisperModel)
 
@@ -78,7 +85,8 @@ final class ServiceContainer {
             transcription: service,
             textInjection: textInjectionService,
             accessibility: accessibilityService,
-            clipboard: clipboardService
+            clipboard: clipboardService,
+            settingsManager: settingsManager
         )
     }
 

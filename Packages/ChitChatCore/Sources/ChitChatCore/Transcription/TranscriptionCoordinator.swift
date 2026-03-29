@@ -55,8 +55,9 @@ public final class TranscriptionCoordinator: @unchecked Sendable {
         return nil
     }
 
-    /// Explicitly switch to a different engine.
-    public func switchEngine(to engine: TranscriptionEngine) -> (any TranscriptionService)? {
+    /// Explicitly switch to a different engine, stopping the previous one.
+    public func switchEngine(to engine: TranscriptionEngine) async -> (any TranscriptionService)? {
+        await activeService?.stopSession()
         activeEngine = engine
         activeService = selectService(for: engine)
         return activeService

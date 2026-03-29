@@ -24,7 +24,8 @@ struct DictationOrchestratorTests {
             transcription: transcription,
             textInjection: injection,
             accessibility: accessibility,
-            clipboard: clipboard
+            clipboard: clipboard,
+            settingsManager: SettingsManager()
         )
 
         return (orchestrator, transcription, audio, injection, accessibility, clipboard)

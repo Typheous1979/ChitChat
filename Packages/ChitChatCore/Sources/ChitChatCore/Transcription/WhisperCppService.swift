@@ -47,6 +47,15 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
         Log.transcription.info("Loading Whisper model from \(modelPath, privacy: .public)")
         let whisper = Whisper(fromFileURL: modelURL)
 
+        // Validate model by transcribing a tiny silent buffer
+        let silence = [Float](repeating: 0, count: 16000) // 1 second of silence
+        do {
+            _ = try await whisper.transcribe(audioFrames: silence)
+        } catch {
+            Log.transcription.error("Whisper model validation failed: \(error.localizedDescription, privacy: .public)")
+            throw TranscriptionError.modelNotLoaded
+        }
+
         lock.withLock {
             _state = .listening
             audioBuffer = Data()
@@ -89,9 +98,16 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
         periodicTask?.cancel()
         periodicTask = nil
 
-        // Wait for any in-flight inference to complete
-        while lock.withLock({ isInferring }) {
+        // Wait for any in-flight inference to complete (with timeout)
+        var waited: TimeInterval = 0
+        let maxWait: TimeInterval = 10.0
+        while lock.withLock({ isInferring }) && waited < maxWait {
             try? await Task.sleep(for: .milliseconds(50))
+            waited += 0.05
+        }
+        if waited >= maxWait {
+            Log.transcription.error("Whisper inference timed out after \(maxWait)s, forcing completion")
+            lock.withLock { isInferring = false }
         }
 
         // Run final inference on all accumulated audio

@@ -9,6 +9,9 @@ public final class WhisperModelManager: NSObject, @unchecked Sendable {
     public private(set) var downloadError: String?
     public private(set) var currentDownloadModel: WhisperModelSize?
 
+    /// Incremented on model download/delete so SwiftUI views that read it re-render.
+    public private(set) var modelChangeCount: Int = 0
+
     private let lock = NSLock()
     private var downloadTask: URLSessionDownloadTask?
     private var downloadContinuation: CheckedContinuation<URL, Error>?
@@ -100,6 +103,7 @@ public final class WhisperModelManager: NSObject, @unchecked Sendable {
                 isDownloading = false
                 downloadProgress = 1.0
                 currentDownloadModel = nil
+                modelChangeCount += 1
             }
         } catch {
             Log.transcription.error("Whisper model download failed: \(error.localizedDescription, privacy: .public)")
@@ -130,6 +134,7 @@ public final class WhisperModelManager: NSObject, @unchecked Sendable {
         if FileManager.default.fileExists(atPath: path.path) {
             try FileManager.default.removeItem(at: path)
             Log.transcription.info("Deleted Whisper model: \(model.rawValue)")
+            lock.withLock { modelChangeCount += 1 }
         }
     }
 

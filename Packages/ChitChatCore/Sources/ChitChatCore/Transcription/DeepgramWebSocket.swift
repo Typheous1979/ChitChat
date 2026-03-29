@@ -39,7 +39,10 @@ final class DeepgramWebSocket: @unchecked Sendable {
         request.setValue("Token \(apiKey)", forHTTPHeaderField: "Authorization")
 
         let task = session.webSocketTask(with: request)
-        lock.withLock { self.webSocketTask = task }
+        lock.withLock {
+            self.webSocketTask?.cancel(with: .goingAway, reason: nil)
+            self.webSocketTask = task
+        }
         task.resume()
         return task
     }
