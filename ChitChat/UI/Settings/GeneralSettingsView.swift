@@ -1,4 +1,5 @@
 import SwiftUI
+import ServiceManagement
 import ChitChatCore
 
 struct GeneralSettingsView: View {
@@ -27,6 +28,17 @@ struct GeneralSettingsView: View {
 
             Section("Behavior") {
                 Toggle("Launch at login", isOn: Bindable(appState.settingsManager).settings.launchAtLogin)
+                    .onChange(of: appState.settingsManager.settings.launchAtLogin) { _, enabled in
+                        do {
+                            if enabled {
+                                try SMAppService.mainApp.register()
+                            } else {
+                                try SMAppService.mainApp.unregister()
+                            }
+                        } catch {
+                            Log.general.error("Launch at login failed: \(error.localizedDescription, privacy: .public)")
+                        }
+                    }
                 Toggle("Show transcription overlay", isOn: Bindable(appState.settingsManager).settings.showTranscriptionOverlay)
                 Toggle("Play feedback sounds", isOn: Bindable(appState.settingsManager).settings.playFeedbackSounds)
                     .disabled(true)

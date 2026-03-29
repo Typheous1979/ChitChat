@@ -5,7 +5,6 @@ import Foundation
 public struct AppSettings: Codable, Sendable {
     // General
     public var launchAtLogin: Bool = false
-    public var showMenuBarIcon: Bool = true
 
     // Hotkey
     public var hotkeyBinding: HotkeyBinding = .defaultBinding
@@ -40,9 +39,6 @@ public struct AppSettings: Codable, Sendable {
     public var showTranscriptionOverlay: Bool = true
     public var overlayOpacity: Double = 0.9
     public var playFeedbackSounds: Bool = true
-
-    // Advanced
-    public var enableLogging: Bool = false
 
     public init() {}
 }

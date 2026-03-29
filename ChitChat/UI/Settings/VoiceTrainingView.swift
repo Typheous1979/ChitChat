@@ -407,6 +407,7 @@ struct VoiceTrainingView: View {
                 Button("Create") {
                     if let profile = try? trainingManager.createProfile(name: newProfileName) {
                         selectedProfileId = profile.id
+                        appState.settingsManager.update { $0.activeVoiceProfileId = profile.id }
                         refreshProfiles()
                     }
                     newProfileName = ""
