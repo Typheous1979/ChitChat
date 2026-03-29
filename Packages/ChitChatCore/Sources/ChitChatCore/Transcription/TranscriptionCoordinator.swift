@@ -94,6 +94,11 @@ public final class TranscriptionCoordinator: @unchecked Sendable {
         whisperService?.isModelLoaded ?? false
     }
 
+    /// Set the initial prompt for Whisper voice training.
+    public func setWhisperInitialPrompt(_ prompt: String?) {
+        whisperService?.setInitialPrompt(prompt)
+    }
+
     private func selectService(for engine: TranscriptionEngine) -> (any TranscriptionService)? {
         switch engine {
         case .deepgram:

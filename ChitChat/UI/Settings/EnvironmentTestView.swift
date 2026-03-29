@@ -8,6 +8,7 @@ struct EnvironmentTestView: View {
     @State private var report: AudioEnvironmentReport?
     @State private var isRunning = false
     @State private var countdown: Int = 5
+    @State private var countdownTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 20) {
@@ -77,27 +78,38 @@ struct EnvironmentTestView: View {
                     .font(.system(size: 48))
                     .foregroundStyle(.blue)
 
-                Text("Phase 1: Measuring Background Noise")
+                Text("Phase 1 of 2: Measuring Background Noise")
                     .font(.headline)
 
-                Text("Please remain quiet...")
+                Text("Stay quiet \u{2014} measuring background noise (\(countdown)s remaining)")
                     .font(.callout)
                     .foregroundStyle(.secondary)
+
+                ProgressView(value: Double(5 - countdown), total: 5.0)
+                    .progressViewStyle(.linear)
+                    .padding(.horizontal, 40)
 
             case .measuringSpeech:
                 Image(systemName: "waveform")
                     .font(.system(size: 48))
                     .foregroundStyle(.green)
 
-                Text("Phase 2: Measuring Your Voice")
+                Text("Phase 2 of 2: Measuring Your Voice")
                     .font(.headline)
 
-                Text("Please read aloud:\n\"The quick brown fox jumps over the lazy dog near the river bank.\"")
+                Text("Read the text below aloud (\(countdown)s remaining)")
                     .font(.callout)
                     .foregroundStyle(.secondary)
+
+                Text("\"The quick brown fox jumps over the lazy dog near the river bank.\"")
+                    .font(.callout.italic())
                     .multilineTextAlignment(.center)
                     .padding()
                     .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+
+                ProgressView(value: Double(5 - countdown), total: 5.0)
+                    .progressViewStyle(.linear)
+                    .padding(.horizontal, 40)
 
             default:
                 ProgressView()
@@ -201,9 +213,9 @@ struct EnvironmentTestView: View {
         isRunning = true
         phase = nil
         report = nil
+        countdown = 5
 
         Task {
-            // Start level monitoring for visual feedback
             await appState.startLevelMonitoring()
 
             do {
@@ -215,7 +227,17 @@ struct EnvironmentTestView: View {
                     silenceDuration: 5.0,
                     speechDuration: 5.0,
                     onPhaseChange: { newPhase in
-                        Task { @MainActor in self.phase = newPhase }
+                        Task { @MainActor in
+                            self.phase = newPhase
+                            switch newPhase {
+                            case .measuringNoise:
+                                self.startCountdown()
+                            case .measuringSpeech:
+                                self.countdown = 5
+                            case .complete:
+                                self.countdownTask?.cancel()
+                            }
+                        }
                     }
                 )
 
@@ -226,7 +248,19 @@ struct EnvironmentTestView: View {
                 isRunning = false
             } catch {
                 isRunning = false
+                countdownTask?.cancel()
                 await appState.stopLevelMonitoring()
+            }
+        }
+    }
+
+    private func startCountdown() {
+        countdownTask?.cancel()
+        countdown = 5
+        countdownTask = Task { @MainActor in
+            while countdown > 0 && !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                if !Task.isCancelled { countdown -= 1 }
             }
         }
     }

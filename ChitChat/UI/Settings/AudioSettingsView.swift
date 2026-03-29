@@ -4,6 +4,7 @@ import ChitChatCore
 struct AudioSettingsView: View {
     @Environment(AppState.self) private var appState
     @State private var isMonitoring = false
+    @State private var showEnvironmentTest = false
 
     var body: some View {
         Form {
@@ -53,11 +54,16 @@ struct AudioSettingsView: View {
 
             Section("Environment") {
                 Button("Test Audio Environment") {
-                    // Will be implemented in Phase 5
+                    showEnvironmentTest = true
                 }
                 Text("Measures background noise and audio quality to optimize transcription.")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
+            }
+            .sheet(isPresented: $showEnvironmentTest) {
+                EnvironmentTestView()
+                    .environment(appState)
+                    .frame(width: 500, height: 450)
             }
         }
         .formStyle(.grouped)

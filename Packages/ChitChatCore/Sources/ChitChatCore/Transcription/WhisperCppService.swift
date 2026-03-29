@@ -13,6 +13,7 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
     private var periodicTask: Task<Void, Never>?
     private var isInferring = false
     private var lastPartialSampleCount: Int = 0
+    private var _initialPrompt: String?
 
     public var state: TranscriptionState {
         lock.withLock { _state }
@@ -54,7 +55,7 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
             cachedWhisper = Whisper(fromFileURL: modelURL)
         }
 
-        guard let whisper = cachedWhisper else {
+        guard cachedWhisper != nil else {
             throw TranscriptionError.modelNotLoaded
         }
 
@@ -153,6 +154,17 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
         cachedWhisper = nil
     }
 
+    /// Set an initial prompt to bias Whisper toward expected vocabulary.
+    /// Built from voice training profile data.
+    public func setInitialPrompt(_ prompt: String?) {
+        lock.withLock { _initialPrompt = prompt }
+        if let prompt, !prompt.isEmpty {
+            Log.transcription.info("Whisper initial prompt set (\(prompt.count) chars)")
+        } else {
+            Log.transcription.info("Whisper initial prompt cleared")
+        }
+    }
+
     // MARK: - Inference
 
     private func runInference(isFinal: Bool) async {
@@ -165,8 +177,16 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
         guard canRun else { return }
         defer { lock.withLock { isInferring = false } }
 
-        let audioData = lock.withLock { audioBuffer }
+        let (audioData, prompt) = lock.withLock { (audioBuffer, _initialPrompt) }
         guard let whisper = cachedWhisper, !audioData.isEmpty else { return }
+
+        // Apply voice training prompt if available
+        var promptCString: UnsafeMutablePointer<CChar>?
+        if let prompt, !prompt.isEmpty {
+            promptCString = strdup(prompt)
+            whisper.params.initial_prompt = UnsafePointer(promptCString!)
+        }
+        defer { promptCString?.deallocate() }
 
         // Convert Float32 PCM Data → [Float] for SwiftWhisper
         let totalSamples = audioData.count / MemoryLayout<Float>.size

@@ -59,6 +59,8 @@ final class ServiceContainer {
                 settingsManager: settingsManager
             )
         }
+
+        applyVoiceProfilePrompt()
     }
 
     /// Rebuild the transcription coordinator and orchestrator when settings change
@@ -88,12 +90,23 @@ final class ServiceContainer {
             clipboard: clipboardService,
             settingsManager: settingsManager
         )
+
+        applyVoiceProfilePrompt()
     }
 
     static func whisperModelPath(for model: WhisperModelSize) -> String? {
         let path = WhisperModelManager.modelPath(for: model).path
         guard FileManager.default.fileExists(atPath: path) else { return nil }
         return path
+    }
+
+    /// Load the active voice profile's initial prompt and apply to Whisper.
+    private func applyVoiceProfilePrompt() {
+        guard let profileId = settingsManager.settings.activeVoiceProfileId else { return }
+        let store = VoiceProfileStore()
+        guard let profile = try? store.loadProfile(id: profileId),
+              profile.isComplete, !profile.initialPrompt.isEmpty else { return }
+        transcriptionCoordinator.setWhisperInitialPrompt(profile.initialPrompt)
     }
 }
 
