@@ -145,6 +145,19 @@ struct TranscriptionSettingsView: View {
     @ViewBuilder
     private var whisperSettings: some View {
         Section("Whisper (Offline)") {
+            HStack {
+                Label("Active Model", systemImage: "cpu")
+                Spacer()
+                if appState.isTranscriptionReady {
+                    Text(appState.settingsManager.settings.whisperModel.displayName)
+                        .foregroundStyle(.primary)
+                        .fontWeight(.medium)
+                } else {
+                    Text("No model loaded")
+                        .foregroundStyle(.red)
+                }
+            }
+
             Picker("Model Size", selection: Bindable(appState.settingsManager).settings.whisperModel) {
                 ForEach(WhisperModelSize.allCases, id: \.self) { size in
                     HStack {

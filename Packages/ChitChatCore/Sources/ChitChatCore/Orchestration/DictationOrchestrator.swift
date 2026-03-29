@@ -94,14 +94,12 @@ public final class DictationOrchestrator: @unchecked Sendable {
 
         if let fieldInfo {
             Log.orchestrator.info("Injecting into \(fieldInfo.applicationName, privacy: .public) (\(fieldInfo.role, privacy: .public))")
-        } else if !axGranted {
-            // Accessibility not granted — still try CGEvent injection (it types into
-            // whatever has keyboard focus without needing AX permission to detect it)
-            Log.orchestrator.info("Accessibility not granted — will inject via CGEvent into active app")
         } else {
-            // Accessibility granted but no text field detected — genuine clipboard fallback
-            Log.orchestrator.info("No text field focused — using clipboard fallback")
-            lock.withLock { usingClipboardFallback = true }
+            // No standard text field detected (or accessibility not granted).
+            // Still inject via CGEvent — works for Terminal, non-standard text areas,
+            // and any app that accepts keyboard input. CGEvent keystrokes go to
+            // whatever app currently has keyboard focus.
+            Log.orchestrator.info("No standard text field detected — will inject via CGEvent into active app")
         }
 
         // Start the pipeline

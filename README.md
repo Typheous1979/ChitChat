@@ -4,18 +4,19 @@ A native macOS menu bar app that transcribes your voice and injects text directl
 
 ## Features
 
-- **Universal text injection** — Works in any app: Terminal, browsers, editors, Slack, and more. No copy-paste needed.
+- **Universal text injection** — Works in any app: Terminal, browsers, editors, Slack, and more via CGEvent keystrokes. No copy-paste needed.
 - **Dual transcription engines**
   - **Deepgram Nova-3** — Cloud-based, real-time streaming with sub-second latency
-  - **Whisper (Offline)** — Fully local inference via whisper.cpp. No internet required. Your audio never leaves your machine.
-- **Push-to-talk & toggle modes** — Hold the hotkey to dictate, or toggle on/off with a single press.
+  - **Whisper (Offline)** — Fully local inference via whisper.cpp. No internet required. Your audio never leaves your machine. Model cached for instant subsequent sessions.
+- **Push-to-talk & toggle modes** — Hold the hotkey to dictate, or toggle on/off with a single press. Mode can be changed at any time.
+- **Smart noise filtering** — Automatically strips whisper.cpp annotations like `[MUSIC]`, `[BIRDS CHIRPING]`, `[BLANK_AUDIO]` so only your speech appears.
 - **Live transcription overlay** — Optional floating window shows what's being transcribed in real-time.
 - **Incremental injection** — Partial results appear as you speak, replacing in-place as transcription refines.
-- **Clipboard fallback** — When no text field is focused, transcription is saved to clipboard automatically.
+- **Active model indicator** — Menu bar and settings show which engine/model is active and whether it's ready.
 - **Menu bar app** — Lives in your menu bar. No dock icon, no window clutter.
 - **Configurable hotkeys** — Set any key combination that works for your workflow.
 - **Audio environment testing** — Built-in tool to analyze your microphone setup and background noise.
-- **Voice training** — Record samples to improve transcription accuracy over time.
+- **Automatic permission management** — Auto-detects and resets stale accessibility permissions after rebuilds.
 
 ## Requirements
 

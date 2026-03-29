@@ -113,34 +113,45 @@ The floating transcription overlay can be toggled in Settings > General under **
 
 ### "Permission Required" warning persists
 
-**Cause:** Accessibility permission was revoked. This happens every time the app is rebuilt because the code signature changes, invalidating the previous authorization.
+**Cause:** Accessibility permission was revoked. This happens every time the app is rebuilt because the code signature changes.
 
-**Fix:**
+**Fix:** The app now **automatically resets** stale accessibility entries on startup and re-prompts. Just go to **System Settings > Privacy & Security > Accessibility** and toggle ChitChat ON. The warning should clear within 1 second (the app polls every second).
+
+If the auto-reset doesn't work, you can manually reset:
 
 ```bash
-# Reset the stale permission entry
 tccutil reset Accessibility com.justinkalicharan.chitchat
-
-# Relaunch the app — it will prompt for permission again
 ```
-
-Then go to **System Settings > Privacy & Security > Accessibility** and toggle ChitChat ON.
 
 ### Text doesn't appear in the focused app
 
 **Cause 1: Accessibility permission not granted**
 - CGEvent posting to other apps requires accessibility permission
 - Without it, keystrokes are silently dropped
-- Check menu bar popover — if "Permissions required" warning is shown, follow the steps above
+- Check menu bar popover — if "Permissions required" warning is shown, grant accessibility permission
 
-**Cause 2: No text field is focused**
-- ChitChat checks for a focused text field before injecting
-- If none is detected, it falls back to clipboard mode
-- Make sure you click into a text field before pressing the hotkey
+**Cause 2: The app doesn't have keyboard focus**
+- Make sure you've clicked into the target app (Terminal, editor, browser, etc.) before pressing the hotkey
+- ChitChat injects keystrokes into whatever app currently has keyboard focus
 
-**Cause 3: App is in clipboard fallback mode**
-- If accessibility is granted but no text field is detected, text goes to clipboard
-- Check the menu bar popover for clipboard entries
+### Text doesn't appear in Terminal.app
+
+ChitChat uses CGEvent Unicode keystrokes which work in Terminal.app, iTerm2, and other terminal emulators. If text isn't appearing:
+- Verify accessibility permission is granted
+- Ensure Terminal has keyboard focus when you press the hotkey
+- Check the menu bar popover for recent transcriptions — if text appears there, the issue is with the target app, not transcription
+
+### Background noise annotations appear in text
+
+Whisper.cpp may emit annotations like `[MUSIC]`, `[BIRDS CHIRPING]`, or `[BLANK_AUDIO]`. These are automatically stripped by the noise token filter. If you see them, ensure you're running the latest build.
+
+### "No Whisper model downloaded" error when pressing hotkey
+
+**Cause:** You have Whisper (Offline) selected as your engine, but the selected model size isn't downloaded.
+
+**Fix:** Open Settings > Transcription, check which model size is selected in the picker, and either:
+- Download that model, or
+- Switch to a model size you've already downloaded (look for the green checkmark)
 
 ### Whisper transcription is very slow
 

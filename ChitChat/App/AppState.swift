@@ -66,6 +66,18 @@ final class AppState {
         isMicrophoneGranted && isAccessibilityGranted
     }
 
+    /// Whether the current transcription engine is ready to use.
+    /// Reads observable properties so SwiftUI views reactively update.
+    var isTranscriptionReady: Bool {
+        let engine = settingsManager.settings.transcriptionEngine
+        if engine == .whisperCpp {
+            // Read modelChangeCount to track download/delete changes
+            let _ = whisperModelManager.modelChangeCount
+            return whisperModelManager.isModelDownloaded(settingsManager.settings.whisperModel)
+        }
+        return true // Deepgram readiness checked at connection time
+    }
+
     // MARK: - Initialization
 
     func bootstrap() async {
@@ -147,6 +159,14 @@ final class AppState {
     }
 
     private func handleHotkeyEvent(_ event: HotkeyEvent, mode: HotkeyMode) async {
+        // Block recording if Whisper is selected but no model is downloaded
+        if !isTranscriptionReady {
+            if event == .pressed {
+                currentError = "No Whisper model downloaded for \(settingsManager.settings.whisperModel.displayName). Open Settings > Transcription to download or select a downloaded model."
+            }
+            return
+        }
+
         switch mode {
         case .pushToTalk:
             switch event {

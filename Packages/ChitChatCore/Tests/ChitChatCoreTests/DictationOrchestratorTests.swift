@@ -106,11 +106,11 @@ struct DictationOrchestratorTests {
         await orchestrator.stopDictation()
     }
 
-    @Test("Clipboard fallback when no text field focused")
-    func clipboardFallback() async {
-        let (orchestrator, transcription, _, _, accessibility, clipboard) = makeSUT()
+    @Test("Injects via CGEvent even when no standard text field focused")
+    func injectsWithoutTextField() async {
+        let (orchestrator, transcription, _, injection, accessibility, clipboard) = makeSUT()
 
-        // No text field focused
+        // No standard text field focused (e.g. Terminal, non-standard app)
         accessibility.hasFocusedField = false
 
         await orchestrator.startDictation()
@@ -121,8 +121,8 @@ struct DictationOrchestratorTests {
 
         await orchestrator.stopDictation()
 
-        // Text should have been stored in clipboard
-        #expect(clipboard.storedEntries.count == 1)
-        #expect(clipboard.storedEntries.first?.text == "Hello world")
+        // Text should have been injected via CGEvent, NOT stored in clipboard
+        #expect(clipboard.storedEntries.isEmpty)
+        #expect(injection.injectedTexts.contains(where: { $0.text.contains("Hello world") }))
     }
 }

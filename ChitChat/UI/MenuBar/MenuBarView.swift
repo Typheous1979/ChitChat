@@ -77,9 +77,38 @@ struct MenuBarView: View {
             if !appState.allPermissionsGranted {
                 permissionWarning
             }
+
+            if !appState.isRecording {
+                engineStatusLabel
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+
+    @ViewBuilder
+    private var engineStatusLabel: some View {
+        let isWhisper = appState.settingsManager.settings.transcriptionEngine == .whisperCpp
+
+        HStack(spacing: 6) {
+            Image(systemName: isWhisper ? "cpu" : "cloud")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+            if isWhisper {
+                Text("Whisper — \(appState.settingsManager.settings.whisperModel.displayName)")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                if !appState.isTranscriptionReady {
+                    Text("(not downloaded)")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+            } else {
+                Text("Deepgram")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+        }
     }
 
     private var permissionWarning: some View {

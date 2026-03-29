@@ -85,11 +85,11 @@ Call `rebuildTranscription()` when the API key changes or the transcription engi
 1. Hotkey Press
    └─► MacHotkeyService (Carbon callback → AsyncStream<HotkeyEvent>)
        └─► AppState.handleHotkeyEvent()
+           ├─► Checks isTranscriptionReady (blocks if Whisper model missing)
            └─► DictationOrchestrator.startDictation()
 
 2. Start Dictation
-   ├─► AccessibilityService.focusedTextField()
-   │   └─► Determines: inject into text field OR clipboard fallback
+   ├─► AccessibilityService.focusedTextField() — informational only, does NOT gate injection
    └─► runPipeline() launches withTaskGroup:
 
        Task A: Audio Feed
@@ -100,12 +100,13 @@ Call `rebuildTranscription()` when the API key changes or the transcription engi
        Task B: Result Processing
        TranscriptionService.startSession()
          → AsyncStream<TranscriptionResult>
+         → Noise token filtering (strips [MUSIC], [BLANK_AUDIO], etc.)
          → handleTranscriptionResult() for each result
-         → TextInjectionService.injectIncremental()
+         → TextInjectionService.injectIncremental() via CGEvent
 
 3. Hotkey Release
    └─► DictationOrchestrator.stopDictation()
-       ├─► transcription.finishAudio() (triggers final inference)
+       ├─► transcription.finishAudio() (triggers final inference, 10s timeout)
        ├─► audioCapture.stopCapture()
        ├─► 300ms grace period for final results
        ├─► Cancel pipeline task
@@ -120,15 +121,21 @@ The orchestrator maintains a `partialCharacterCount` to enable smooth in-place t
 Partial result "Hello"       → type "Hello"                    (count: 5)
 Partial result "Hello wor"   → delete 5, type "Hello wor"      (count: 9)
 Partial result "Hello world" → delete 9, type "Hello world"     (count: 11)
-Final result   "Hello world" → delete 11, type "Hello world "   (count: 0, +space)
+Final result   "Hello world" → delete 11, type "Hello world "   (count: 0, +space if addTrailingSpace enabled)
 ```
 
-Deletion uses CGEvent backspace keystrokes. Typing uses CGEvent Unicode keystrokes via `keyboardSetUnicodeString()`.
+Deletion uses CGEvent backspace keystrokes. Typing uses CGEvent Unicode keystrokes via `keyboardSetUnicodeString()`. The trailing space on final results is controlled by the `addTrailingSpace` setting (read from `SettingsManager`).
 
-### Clipboard Fallback
+### Text Injection in Terminal and Non-Standard Apps
 
-When accessibility detects no focused text field:
-1. `usingClipboardFallback` flag is set
+CGEvent keystroke injection works universally — including Terminal.app, iTerm2, and other apps whose AX roles don't match standard text field roles. The orchestrator always injects via CGEvent regardless of `focusedTextField()` result. No automatic clipboard fallback occurs.
+
+### Clipboard Fallback (Manual Only)
+
+Clipboard fallback is NOT triggered automatically. Transcription results are always available in "Recent" in the menu bar popover for manual copy. Automatic clipboard fallback was removed because it silently intercepted text meant for Terminal and other non-standard apps.
+
+Previously when accessibility detected no focused text field:
+1. `usingClipboardFallback` flag was set
 2. Final results are accumulated (not injected)
 3. On session end, accumulated text is stored via `ClipboardService`
 4. User can paste manually
@@ -148,11 +155,14 @@ When accessibility detects no focused text field:
 - Loads GGML model files downloaded by `WhisperModelManager` from Hugging Face
 - Models stored at `~/Library/Application Support/ChitChat/Models/`
 - Available sizes: Tiny (75MB), Base (142MB), Small (466MB), Medium (1.5GB), Large-v3 (3GB)
+- **Model caching**: `cachedWhisper` persists across recording sessions — first hotkey press loads model, subsequent presses are instant
 - Audio buffered during `feedAudio()`, inference runs:
-  - Periodically (~2s) for partial results during recording
-  - Once on `finishAudio()` for the final result
+  - Periodically (~3s, min 1s new audio) for partial results during recording
+  - Once on `finishAudio()` for the final result (10s timeout)
 - Inference serialized via `isInferring` flag (whisper model is not thread-safe)
-- **Must build Release** — Debug builds lack compiler optimization, making inference extremely slow
+- **Noise token filtering**: Regex strips all `[BRACKETED]` and `(parenthesized)` whisper.cpp annotations (music, birds, blank audio, laughter, etc.) before emitting results
+- **Model readiness guard**: `AppState.isTranscriptionReady` blocks recording if selected model not downloaded, shows error directing user to Settings
+- **Must build Release** — Debug builds lack compiler optimization, making inference extremely slow. Tiny model recommended for best performance.
 
 ### Engine Selection
 

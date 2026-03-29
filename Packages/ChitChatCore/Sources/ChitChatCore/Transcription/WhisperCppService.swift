@@ -9,9 +9,10 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
     private var _state: TranscriptionState = .idle
     private var audioBuffer = Data()
     private var resultContinuation: AsyncStream<TranscriptionResult>.Continuation?
-    private var whisperInstance: Whisper?
+    private var cachedWhisper: Whisper?
     private var periodicTask: Task<Void, Never>?
     private var isInferring = false
+    private var lastPartialSampleCount: Int = 0
 
     public var state: TranscriptionState {
         lock.withLock { _state }
@@ -23,9 +24,11 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
     private let modelPath: String?
 
     /// Seconds of audio to accumulate before the first partial inference.
-    private let minAudioForPartial: Double = 1.5
+    private let minAudioForPartial: Double = 2.0
     /// Seconds between successive partial inferences.
-    private let partialInterval: Double = 2.0
+    private let partialInterval: Double = 3.0
+    /// Minimum new audio (in seconds) required to justify a new partial inference.
+    private let minNewAudioForPartial: Double = 1.0
 
     public init(modelPath: String? = nil) {
         self.modelPath = modelPath
@@ -43,24 +46,23 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
             throw TranscriptionError.modelNotLoaded
         }
 
-        let modelURL = URL(fileURLWithPath: modelPath)
-        Log.transcription.info("Loading Whisper model from \(modelPath, privacy: .public)")
-        let whisper = Whisper(fromFileURL: modelURL)
+        // Cache the Whisper model instance — loading from disk is expensive.
+        // Only reload if the model isn't cached yet.
+        if cachedWhisper == nil {
+            let modelURL = URL(fileURLWithPath: modelPath)
+            Log.transcription.info("Loading Whisper model from \(modelPath, privacy: .public)")
+            cachedWhisper = Whisper(fromFileURL: modelURL)
+        }
 
-        // Validate model by transcribing a tiny silent buffer
-        let silence = [Float](repeating: 0, count: 16000) // 1 second of silence
-        do {
-            _ = try await whisper.transcribe(audioFrames: silence)
-        } catch {
-            Log.transcription.error("Whisper model validation failed: \(error.localizedDescription, privacy: .public)")
+        guard let whisper = cachedWhisper else {
             throw TranscriptionError.modelNotLoaded
         }
 
         lock.withLock {
             _state = .listening
             audioBuffer = Data()
-            whisperInstance = whisper
             isInferring = false
+            lastPartialSampleCount = 0
         }
 
         let stream = AsyncStream<TranscriptionResult> { continuation in
@@ -75,7 +77,6 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
         // Launch periodic partial inference in the background
         periodicTask = Task { [weak self] in
             guard let self else { return }
-            // Wait for enough audio to accumulate before first partial
             try? await Task.sleep(for: .seconds(self.minAudioForPartial))
             while !Task.isCancelled {
                 await self.runInference(isFinal: false)
@@ -83,7 +84,7 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
             }
         }
 
-        Log.transcription.info("Whisper session started")
+        Log.transcription.info("Whisper session started (model cached)")
         return stream
     }
 
@@ -135,7 +136,21 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
             return c
         }
         continuation?.finish()
-        whisperInstance = nil
+        // Don't nil cachedWhisper — keep it for next session
+    }
+
+    /// Strip whisper.cpp non-speech annotation tokens like [MUSIC], [BIRDS CHIRPING], (laughing), etc.
+    private static let noisePattern = try! NSRegularExpression(pattern: #"\[.*?\]|\(.*?\)"#)
+
+    private static func stripNoiseTokens(_ text: String) -> String {
+        let range = NSRange(text.startIndex..., in: text)
+        return noisePattern.stringByReplacingMatches(in: text, range: range, withTemplate: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Invalidate the cached model (e.g. when the user switches models).
+    public func invalidateModelCache() {
+        cachedWhisper = nil
     }
 
     // MARK: - Inference
@@ -150,22 +165,35 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
         guard canRun else { return }
         defer { lock.withLock { isInferring = false } }
 
-        let (audioData, whisper) = lock.withLock { (audioBuffer, whisperInstance) }
-        guard let whisper, !audioData.isEmpty else { return }
+        let audioData = lock.withLock { audioBuffer }
+        guard let whisper = cachedWhisper, !audioData.isEmpty else { return }
 
         // Convert Float32 PCM Data → [Float] for SwiftWhisper
-        let floatCount = audioData.count / MemoryLayout<Float>.size
-        guard floatCount > 0 else { return }
+        let totalSamples = audioData.count / MemoryLayout<Float>.size
+        guard totalSamples > 0 else { return }
+
+        // For partials, skip if not enough new audio since last partial
+        if !isFinal {
+            let newSamples = totalSamples - lock.withLock({ lastPartialSampleCount })
+            let minNewSamples = Int(minNewAudioForPartial * 16000)
+            guard newSamples >= minNewSamples else { return }
+        }
 
         let frames: [Float] = audioData.withUnsafeBytes { raw in
             let bound = raw.bindMemory(to: Float.self)
             return Array(bound)
         }
 
+        lock.withLock { lastPartialSampleCount = totalSamples }
+
         do {
             let segments = try await whisper.transcribe(audioFrames: frames)
-            let text = segments.map(\.text).joined()
+            let rawText = segments.map(\.text).joined()
                 .trimmingCharacters(in: .whitespacesAndNewlines)
+            // Strip all whisper.cpp non-speech annotations:
+            // [BLANK_AUDIO], [MUSIC], [MUSIC PLAYING IN THE BACKGROUND], [BIRDS CHIRPING], etc.
+            // (blank audio), (music), (laughing), etc.
+            let text = Self.stripNoiseTokens(rawText)
 
             guard !text.isEmpty else { return }
 
