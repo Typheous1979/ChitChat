@@ -8,8 +8,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Generate Xcode project (required after adding/removing files)
 /tmp/xcodegen/xcodegen/bin/xcodegen generate
 
-# Build the app
+# Build the app (Debug)
 xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Debug build
+
+# Build the app (Release — required for Whisper performance)
+xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Release build
 
 # Build ChitChatCore package only
 cd Packages/ChitChatCore && swift build
@@ -39,7 +42,7 @@ Seven service protocols defined in `ChitChatCore/Protocols/` with macOS implemen
 
 | Protocol | macOS Implementation | Underlying API |
 |----------|---------------------|----------------|
-| `TranscriptionService` | `DeepgramStreamingService` / `WhisperCppService` | WebSocket / whisper.cpp |
+| `TranscriptionService` | `DeepgramStreamingService` / `WhisperCppService` | WebSocket / SwiftWhisper (whisper.cpp) |
 | `AudioCaptureService` | `MacAudioCaptureService` | AVAudioEngine + CoreAudio |
 | `TextInjectionService` | `MacTextInjectionService` | CGEvent Unicode keystrokes |
 | `HotkeyService` | `MacHotkeyService` | Carbon RegisterEventHotKey |
@@ -80,9 +83,13 @@ Hotkey Press → MacHotkeyService (Carbon callback → AsyncStream<HotkeyEvent>)
 - **AsyncStream everywhere** — Audio capture, transcription results, hotkey events, level monitoring, and noise warnings all flow through `AsyncStream`.
 - **OSLog logging** — Use `Log.orchestrator`, `Log.transcription`, `Log.audio`, etc. from `ChitChatCore/Utilities/Logger.swift`.
 - **NSLock deadlock risk** — Never call `continuation.finish()` inside a lock if `onTermination` also acquires the same lock. Extract the continuation first, then finish outside the lock.
-- **Audio format** — AVAudioEngine captures Float32 PCM at 16kHz mono. `AudioFormatConverter.float32ToInt16()` converts for Deepgram's `linear16` encoding.
+- **Audio format** — AVAudioEngine captures Float32 PCM at 16kHz mono. `AudioFormatConverter.float32ToInt16()` converts for Deepgram's `linear16` encoding. WhisperCppService consumes Float32 directly as `[Float]`.
+- **SwiftWhisper dependency** — `WhisperCppService` uses [SwiftWhisper](https://github.com/exPHAT/SwiftWhisper) (SPM, branch: master) for offline inference. Loads GGML models downloaded by `WhisperModelManager`. Emits periodic partial results (~2s intervals) and a final result on `finishAudio()`.
+- **Whisper performance** — Always build **Release** when testing Whisper. Debug builds compile whisper.cpp without `-O3` optimization, making inference extremely slow.
 - **Menu bar app** — `LSUIElement=true` in Info.plist. `NSApp.setActivationPolicy(.accessory)`. No dock icon.
+- **Accessibility after rebuilds** — Xcode rebuilds invalidate code signature, revoking accessibility permission. Run `tccutil reset Accessibility com.justinkalicharan.chitchat` then relaunch to re-prompt.
 - **xcodegen** — Run `xcodegen generate` after adding/removing source files to regenerate the `.xcodeproj` from `project.yml`.
+- **gh CLI** — Installed at `~/bin/gh` (not in system PATH). Use full path for GitHub operations.
 
 ## Test Mocks
 
