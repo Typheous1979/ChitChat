@@ -34,6 +34,13 @@ public final class DictationOrchestrator: @unchecked Sendable {
     private let clipboard: ClipboardService
     private let settingsManager: SettingsManager
 
+    /// Voice training corrections: maps misheard words to correct forms.
+    /// Applied as post-processing on transcription results before injection.
+    public var corrections: [String: String] = [:]
+
+    /// Noise gate filter calibrated from environment test. Nil if not calibrated.
+    public var noiseGate: AudioNoiseGate?
+
     // Internal state
     private let lock = NSLock()
     private var pipelineTask: Task<Void, Never>?
@@ -181,10 +188,13 @@ public final class DictationOrchestrator: @unchecked Sendable {
                 // Task A: Feed audio to transcription
                 group.addTask { [weak self] in
                     guard let self else { return }
+                    let gate = self.noiseGate
+                    let suppressionEnabled = self.settingsManager.settings.noiseSuppression
                     var bufferCount = 0
                     for await buffer in audioStream {
                         guard !Task.isCancelled else { break }
-                        await self.transcription.feedAudio(buffer)
+                        let processed = (suppressionEnabled && gate != nil) ? gate!.process(buffer) : buffer
+                        await self.transcription.feedAudio(processed)
                         bufferCount += 1
                     }
                     Log.orchestrator.info("Audio feed ended after \(bufferCount) buffers")
@@ -219,8 +229,15 @@ public final class DictationOrchestrator: @unchecked Sendable {
     /// - On partial: delete previous partial chars, type new partial
     /// - On final: delete previous partial chars, type final text, reset counter
     private func handleTranscriptionResult(_ result: TranscriptionResult) async {
-        let text = result.text
+        var text = result.text
         let isFinal = result.isFinal
+
+        // Apply voice training corrections (replace misheard words with correct forms)
+        if !corrections.isEmpty {
+            for (wrong, correct) in corrections {
+                text = text.replacingOccurrences(of: wrong, with: correct, options: .caseInsensitive)
+            }
+        }
 
         currentTranscription = text
 

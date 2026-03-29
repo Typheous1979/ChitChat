@@ -98,6 +98,16 @@ struct VoiceTrainingView: View {
                     }
                 }
 
+                if profile.completedPromptIds.count > 0 {
+                    Button("Reset Training", role: .destructive) {
+                        try? trainingManager.resetTraining()
+                        lastComparison = nil
+                        recordingError = nil
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
+                }
+
                 if profile.isComplete {
                     trainingCompleteView(profile)
                 } else if let comparison = lastComparison {
@@ -144,6 +154,13 @@ struct VoiceTrainingView: View {
                         .foregroundStyle(.tertiary)
                 }
             }
+
+            Button("Retrain from scratch") {
+                try? trainingManager.resetTraining()
+                lastComparison = nil
+            }
+            .buttonStyle(.bordered)
+            .font(.caption)
         }
     }
 
@@ -172,11 +189,20 @@ struct VoiceTrainingView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Button("Next Passage") {
-                lastComparison = nil
-                recordingError = nil
+            HStack {
+                Button("Retry Passage") {
+                    try? trainingManager.retryLastPrompt()
+                    lastComparison = nil
+                    recordingError = nil
+                }
+                .buttonStyle(.bordered)
+
+                Button("Next Passage") {
+                    lastComparison = nil
+                    recordingError = nil
+                }
+                .buttonStyle(.borderedProminent)
             }
-            .buttonStyle(.borderedProminent)
         }
     }
 
@@ -245,14 +271,17 @@ struct VoiceTrainingView: View {
         capturedAudioData = Data()
         lastComparison = nil
         recordingError = nil
-        isRecording = true
 
         Task {
             do {
-                await appState.startLevelMonitoring()
+                // Stop any existing level monitoring to avoid mic contention
+                await appState.stopLevelMonitoring()
+
                 let audioStream = try await appState.services.audioCaptureService.startCapture(
                     sampleRate: 16000, channels: 1
                 )
+                isRecording = true
+
                 audioAccumulationTask = Task {
                     for await buffer in audioStream {
                         guard !Task.isCancelled else { break }
@@ -274,7 +303,6 @@ struct VoiceTrainingView: View {
             audioAccumulationTask?.cancel()
             audioAccumulationTask = nil
             await appState.services.audioCaptureService.stopCapture()
-            await appState.stopLevelMonitoring()
 
             guard !capturedAudioData.isEmpty else {
                 recordingError = "No audio captured. Try again."

@@ -186,17 +186,22 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
             promptCString = strdup(prompt)
             whisper.params.initial_prompt = UnsafePointer(promptCString!)
         }
-        defer { promptCString?.deallocate() }
 
         // Convert Float32 PCM Data → [Float] for SwiftWhisper
         let totalSamples = audioData.count / MemoryLayout<Float>.size
-        guard totalSamples > 0 else { return }
+        guard totalSamples > 0 else {
+            promptCString?.deallocate()
+            return
+        }
 
         // For partials, skip if not enough new audio since last partial
         if !isFinal {
             let newSamples = totalSamples - lock.withLock({ lastPartialSampleCount })
             let minNewSamples = Int(minNewAudioForPartial * 16000)
-            guard newSamples >= minNewSamples else { return }
+            guard newSamples >= minNewSamples else {
+                promptCString?.deallocate()
+                return
+            }
         }
 
         let frames: [Float] = audioData.withUnsafeBytes { raw in
@@ -208,6 +213,10 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
 
         do {
             let segments = try await whisper.transcribe(audioFrames: frames)
+
+            // Free C string AFTER transcribe completes (it runs on background queue)
+            promptCString?.deallocate()
+            promptCString = nil
             let rawText = segments.map(\.text).joined()
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             // Strip all whisper.cpp non-speech annotations:
@@ -228,6 +237,7 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
 
             Log.transcription.info("Whisper \(isFinal ? "final" : "partial", privacy: .public): \"\(text, privacy: .public)\"")
         } catch {
+            promptCString?.deallocate()
             if !Task.isCancelled {
                 Log.transcription.error("Whisper inference error: \(error.localizedDescription, privacy: .public)")
             }

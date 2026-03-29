@@ -146,6 +146,11 @@ struct EnvironmentTestView: View {
             .padding()
             .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 10))
 
+            // Calibration status
+            Label("Noise filter calibrated to your environment", systemImage: "checkmark.seal.fill")
+                .font(.caption)
+                .foregroundStyle(.green)
+
             // Suggestions
             if !report.recommendation.suggestions.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
@@ -246,6 +251,14 @@ struct EnvironmentTestView: View {
 
                 report = result
                 isRunning = false
+
+                // Persist calibration to settings for noise gate
+                appState.settingsManager.update {
+                    $0.calibratedNoiseFloorDb = result.noiseFloorDb
+                    $0.calibratedSpeechLevelDb = result.speechLevelDb
+                    $0.calibratedSNR = result.signalToNoiseRatio
+                }
+                appState.rebuildTranscription()
             } catch {
                 isRunning = false
                 countdownTask?.cancel()

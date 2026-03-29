@@ -22,6 +22,11 @@ public struct AppSettings: Codable, Sendable {
     public var selectedMicrophoneId: String? = nil
     public var noiseSuppression: Bool = true
 
+    // Audio Calibration (from environment test)
+    public var calibratedNoiseFloorDb: Float? = nil
+    public var calibratedSpeechLevelDb: Float? = nil
+    public var calibratedSNR: Float? = nil
+
     // Text Injection
     public var injectionMethod: InjectionMethod = .auto
     public var addTrailingSpace: Bool = true

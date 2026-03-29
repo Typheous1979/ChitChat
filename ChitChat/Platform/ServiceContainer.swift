@@ -61,6 +61,7 @@ final class ServiceContainer {
         }
 
         applyVoiceProfilePrompt()
+        applyNoiseGate()
     }
 
     /// Rebuild the transcription coordinator and orchestrator when settings change
@@ -92,6 +93,7 @@ final class ServiceContainer {
         )
 
         applyVoiceProfilePrompt()
+        applyNoiseGate()
     }
 
     static func whisperModelPath(for model: WhisperModelSize) -> String? {
@@ -100,13 +102,37 @@ final class ServiceContainer {
         return path
     }
 
-    /// Load the active voice profile's initial prompt and apply to Whisper.
+    /// Load the active voice profile and apply its training data to transcription.
     private func applyVoiceProfilePrompt() {
         guard let profileId = settingsManager.settings.activeVoiceProfileId else { return }
         let store = VoiceProfileStore()
         guard let profile = try? store.loadProfile(id: profileId),
-              profile.isComplete, !profile.initialPrompt.isEmpty else { return }
-        transcriptionCoordinator.setWhisperInitialPrompt(profile.initialPrompt)
+              profile.isComplete else { return }
+
+        // Apply initial prompt (example text) to bias Whisper
+        if !profile.initialPrompt.isEmpty {
+            transcriptionCoordinator.setWhisperInitialPrompt(profile.initialPrompt)
+        }
+
+        // Apply corrections for post-processing in DictationOrchestrator
+        if !profile.corrections.isEmpty {
+            dictationOrchestrator.corrections = profile.corrections
+        }
+
+        // Apply noise gate from audio calibration
+        applyNoiseGate()
+    }
+
+    /// Build and apply noise gate from stored calibration data.
+    private func applyNoiseGate() {
+        let settings = settingsManager.settings
+        guard settings.noiseSuppression,
+              let noiseFloor = settings.calibratedNoiseFloorDb,
+              let snr = settings.calibratedSNR else { return }
+
+        let gate = AudioNoiseGate(noiseFloorDb: noiseFloor, snr: snr)
+        dictationOrchestrator.noiseGate = gate
+        Log.audio.info("Noise gate applied: floor=\(noiseFloor)dB, SNR=\(snr)dB, threshold=\(gate.thresholdLinear)")
     }
 }
 

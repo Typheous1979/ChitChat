@@ -92,6 +92,30 @@ public final class VoiceTrainingManager: @unchecked Sendable {
         updateProgress()
     }
 
+    /// Remove the last completed prompt so it can be re-recorded.
+    public func retryLastPrompt() throws {
+        guard var profile = currentProfile, !profile.completedPromptIds.isEmpty else { return }
+        profile.completedPromptIds.removeLast()
+        profile.isComplete = false
+        profile.initialPrompt = ""
+        try profileStore.saveProfile(profile)
+        currentProfile = profile
+        updateProgress()
+    }
+
+    /// Reset all training progress for the current profile.
+    public func resetTraining() throws {
+        guard var profile = currentProfile else { return }
+        profile.completedPromptIds.removeAll()
+        profile.corrections.removeAll()
+        profile.customVocabulary.removeAll()
+        profile.isComplete = false
+        profile.initialPrompt = ""
+        try profileStore.saveProfile(profile)
+        currentProfile = profile
+        updateProgress()
+    }
+
     // MARK: - Analysis
 
     /// Find words that were mistranscribed.
@@ -125,10 +149,33 @@ public final class VoiceTrainingManager: @unchecked Sendable {
         return Array(expectedSet.intersection(transcribedSet)).filter { $0.count > 3 }
     }
 
-    /// Build an initial prompt for Whisper from the profile's vocabulary.
+    /// Build an initial prompt for Whisper from the completed training passages.
+    /// whisper.cpp's initial_prompt conditions the model on example transcription text —
+    /// feeding it real sentences the user spoke is far more effective than a vocabulary list.
     private func buildInitialPrompt(from profile: VoiceProfile) -> String {
-        let vocab = profile.customVocabulary.prefix(50).joined(separator: ", ")
-        return "The following words are commonly used: \(vocab)."
+        // Use the actual training passage texts as example transcriptions.
+        // Apply learned corrections so Whisper sees the correct word forms.
+        let completedTexts = TrainingPrompts.all
+            .filter { profile.completedPromptIds.contains($0.id) }
+            .map { prompt in
+                var text = prompt.text
+                // Apply corrections so the prompt contains correct forms
+                for (wrong, correct) in profile.corrections {
+                    text = text.replacingOccurrences(
+                        of: wrong, with: correct,
+                        options: .caseInsensitive
+                    )
+                }
+                return text
+            }
+
+        // whisper.cpp truncates initial_prompt to ~224 tokens, so keep it concise.
+        // Join passages and truncate to ~500 chars.
+        let joined = completedTexts.joined(separator: " ")
+        if joined.count > 500 {
+            return String(joined.prefix(500))
+        }
+        return joined
     }
 
     private func updateProgress() {
