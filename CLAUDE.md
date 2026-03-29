@@ -17,7 +17,7 @@ xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Release b
 # Build ChitChatCore package only
 cd Packages/ChitChatCore && swift build
 
-# Run all ChitChatCore tests (27 tests, 8 suites)
+# Run all ChitChatCore tests (39 tests, 9 suites)
 cd Packages/ChitChatCore && swift test
 
 # Run a single test suite
@@ -63,8 +63,8 @@ Hotkey Press → AppState.handleHotkeyEvent()
     → AccessibilityService.focusedTextField() — informational only
     → Always injects via CGEvent (works in Terminal, browsers, all apps)
     → Two concurrent tasks in withTaskGroup:
-        Task A: AudioCaptureService.startCapture() → feedAudio() to transcription
-        Task B: TranscriptionService results → noise filtering → TextInjectionService.injectIncremental()
+        Task A: AudioCaptureService.startCapture() → noise gate filter → feedAudio() to transcription
+        Task B: TranscriptionService results → noise filtering → corrections post-processing → TextInjectionService.injectIncremental()
   → Hotkey Release → stopDictation() → finishAudio() → cleanup
 ```
 
@@ -91,6 +91,10 @@ CGEvent Unicode keystrokes are always used for text injection — no automatic c
 - **Audio format** — AVAudioEngine captures Float32 PCM at 16kHz mono. `AudioFormatConverter.float32ToInt16()` converts for Deepgram's `linear16` encoding. WhisperCppService consumes Float32 directly as `[Float]`.
 - **SwiftWhisper dependency** — `WhisperCppService` uses [SwiftWhisper](https://github.com/exPHAT/SwiftWhisper) (SPM, branch: master) for offline inference. Loads GGML models downloaded by `WhisperModelManager`. Model is cached across sessions (`cachedWhisper`). Emits periodic partial results (~3s intervals) and a final result on `finishAudio()` with 10s timeout.
 - **Noise token filtering** — `WhisperCppService.stripNoiseTokens()` uses regex `\[.*?\]|\(.*?\)` to remove all whisper.cpp annotations like `[BLANK_AUDIO]`, `[MUSIC PLAYING IN THE BACKGROUND]`, `[BIRDS CHIRPING]`, `(laughing)`, etc. If only noise tokens remain, no result is emitted.
+- **Noise gate filter** — `AudioNoiseGate` (ChitChatCore/Audio/) applies per-buffer gating calibrated from environment test. Mutes buffers below threshold (noise floor + adaptive offset based on SNR). Global setting stored in `AppSettings.calibratedNoiseFloorDb/calibratedSpeechLevelDb/calibratedSNR`. Controlled by `noiseSuppression` toggle. Applied in DictationOrchestrator's audio feed loop. Loaded by `ServiceContainer.applyNoiseGate()` on startup and rebuild.
+- **Voice training** — 10-passage training via `VoiceTrainingManager`. Builds `initialPrompt` from actual passage texts (not vocabulary list — whisper.cpp needs example sentences). Corrections dictionary applied as post-processing in `DictationOrchestrator.handleTranscriptionResult()`. Profile data persisted in `~/Library/Application Support/ChitChat/VoiceProfiles/`. Loaded by `ServiceContainer.applyVoiceProfilePrompt()`.
+- **C string lifetime for initial_prompt** — `strdup()` before `whisper.transcribe()`, free AFTER it returns. Do NOT use `defer` — transcribe dispatches to background queue, defer would free the pointer before inference runs.
+- **Mic contention** — `MacAudioCaptureService` uses separate `AVAudioEngine` instances for level monitoring and capture. Always call `stopLevelMonitoring()` before `startCapture()` to avoid contention. Affects EnvironmentTestView and VoiceTrainingView.
 - **Whisper performance** — Always build **Release** when testing Whisper. Debug builds compile whisper.cpp without `-O3` optimization. Tiny model (75MB) recommended for best speed. Model cached after first load.
 - **Menu bar app** — `LSUIElement=true` in Info.plist. `NSApp.setActivationPolicy(.accessory)`. No dock icon.
 - **Accessibility auto-reset** — On startup, if accessibility is denied, the app automatically runs `tccutil reset Accessibility com.justinkalicharan.chitchat` to clear stale TCC entries from previous builds, then re-prompts. Polls every 1 second.

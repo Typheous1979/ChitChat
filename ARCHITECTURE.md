@@ -236,11 +236,57 @@ All use `@unchecked Sendable` with `NSLock` for manual thread safety.
 - **Continuation safety**: Always extract continuation from lock before calling `finish()` to prevent deadlock (onTermination handler may re-enter the lock)
 - **Task cancellation**: Checked via `Task.isCancelled` in all async loops
 
+## Audio Processing Pipeline
+
+### Environment-Calibrated Noise Gate
+
+`AudioNoiseGate` (`ChitChatCore/Audio/AudioNoiseGate.swift`) filters background noise during dictation:
+
+1. **Calibration**: Environment test (Settings > Voice Training) runs two 5-second phases:
+   - Phase 1: Silence — measures noise floor (dB)
+   - Phase 2: Speech — measures voice level (dB), calculates SNR
+2. **Gate threshold**: `noiseFloor + adaptiveOffset` where offset scales with SNR:
+   - SNR < 10 dB (noisy): 8 dB offset (aggressive gating)
+   - SNR 10-20 dB (moderate): 5 dB offset
+   - SNR >= 20 dB (quiet): 3 dB offset
+3. **Per-buffer filtering**: In `DictationOrchestrator.runPipeline()`, each audio buffer's RMS is compared to threshold. Below = zeroed (silence). Above = passed through unchanged.
+4. **Persistence**: Calibration stored in `AppSettings` (`calibratedNoiseFloorDb`, `calibratedSpeechLevelDb`, `calibratedSNR`). Loaded by `ServiceContainer.applyNoiseGate()` on startup.
+5. **Toggle**: Controlled by `noiseSuppression` setting in Audio preferences.
+
+### Mic Contention
+
+`MacAudioCaptureService` uses separate `AVAudioEngine` instances for level monitoring and capture. Both open the same mic input and compete. Always call `stopLevelMonitoring()` before `startCapture()`.
+
+## Voice Training
+
+### Training Flow
+
+1. User creates a voice profile and records 10 passages from `TrainingPrompts.all`
+2. Each recording is transcribed by the active engine, compared word-by-word to expected text
+3. `VoiceTrainingManager.recordTrainingSample()` builds:
+   - **Corrections dictionary**: `[misheardWord: correctWord]` — applied as post-processing
+   - **Custom vocabulary**: correctly transcribed words (>3 chars)
+   - **Initial prompt**: actual passage texts with corrections applied (whisper.cpp's `initial_prompt` needs example sentences, not vocabulary lists)
+4. On completion, `ServiceContainer` loads the profile and applies both prompt and corrections
+
+### How Training Improves Transcription
+
+Two mechanisms:
+- **Whisper initial_prompt biasing**: `WhisperCppService.setInitialPrompt()` sets `whisper_full_params.initial_prompt` with example sentences, conditioning the model toward the user's vocabulary and speaking patterns
+- **Corrections post-processing**: `DictationOrchestrator.handleTranscriptionResult()` replaces known misheard words before text injection
+
+### Data Persistence
+
+- Profiles: `~/Library/Application Support/ChitChat/VoiceProfiles/{UUID}.json`
+- Recordings: `~/Library/Application Support/ChitChat/VoiceProfiles/{UUID}/recordings/`
+- Active profile ID: `AppSettings.activeVoiceProfileId`
+- Deleting a profile removes all data; corrections and prompt are cleared on next restart
+
 ## Permissions
 
 | Permission | Why Needed | How Checked |
 |------------|-----------|-------------|
 | Microphone | Audio capture | `AVCaptureDevice.requestAccess(for: .audio)` |
-| Accessibility | Text injection + focused field detection | `AXIsProcessTrusted()`, polled every 2s |
+| Accessibility | Text injection + focused field detection | `AXIsProcessTrusted()`, polled every 1s |
 
 Both are required for full functionality. Without accessibility, CGEvent posting to other apps silently fails.

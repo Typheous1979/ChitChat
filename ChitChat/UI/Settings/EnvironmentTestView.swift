@@ -216,12 +216,14 @@ struct EnvironmentTestView: View {
 
     private func startTest() {
         isRunning = true
-        phase = nil
+        phase = .measuringNoise
         report = nil
         countdown = 5
+        startCountdown()
 
         Task {
-            await appState.startLevelMonitoring()
+            // Stop any existing level monitoring to avoid mic contention
+            await appState.stopLevelMonitoring()
 
             do {
                 let audioStream = try await appState.services.audioCaptureService.startCapture(sampleRate: 16000, channels: 1)
@@ -234,12 +236,9 @@ struct EnvironmentTestView: View {
                     onPhaseChange: { newPhase in
                         Task { @MainActor in
                             self.phase = newPhase
-                            switch newPhase {
-                            case .measuringNoise:
-                                self.startCountdown()
-                            case .measuringSpeech:
+                            if newPhase == .measuringSpeech {
                                 self.countdown = 5
-                            case .complete:
+                            } else if newPhase == .complete {
                                 self.countdownTask?.cancel()
                             }
                         }
@@ -247,7 +246,6 @@ struct EnvironmentTestView: View {
                 )
 
                 await appState.services.audioCaptureService.stopCapture()
-                await appState.stopLevelMonitoring()
 
                 report = result
                 isRunning = false
@@ -262,7 +260,6 @@ struct EnvironmentTestView: View {
             } catch {
                 isRunning = false
                 countdownTask?.cancel()
-                await appState.stopLevelMonitoring()
             }
         }
     }

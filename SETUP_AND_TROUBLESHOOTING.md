@@ -47,7 +47,7 @@ cd Packages/ChitChatCore && swift build
 ### Running Tests
 
 ```bash
-# All tests (27 tests, 8 suites)
+# All tests (39 tests, 9 suites)
 cd Packages/ChitChatCore && swift test
 
 # Single test suite
@@ -196,6 +196,24 @@ Run `xcodegen generate` to regenerate the Xcode project from `project.yml`, then
 3. Use the "Test Connection" button in Settings to diagnose
 4. Check that your Deepgram account has available credits
 
+### Environment test stuck on Phase 1
+
+**Cause:** Level monitoring is holding the microphone, preventing the audio capture stream from receiving buffers.
+
+**Fix:** Close the Audio Settings tab before running the environment test. If the issue persists, restart the app and go directly to Voice Training > Test Audio Environment.
+
+### Voice training recording captures no audio
+
+**Cause:** Same mic contention issue — level monitoring or another capture session is active.
+
+**Fix:** Ensure you're not actively dictating (hotkey recording) when training. Close Audio Settings if the level monitor is running.
+
+### Noise gate too aggressive / filtering out speech
+
+**Cause:** The environment test was run in a very quiet room, setting a low threshold. When you move to a noisier environment, the gate may be too tight.
+
+**Fix:** Re-run the environment test in your current environment. The gate threshold adapts to the measured noise floor and SNR.
+
 ## Whisper Model Guide
 
 | Model | Size | Speed | Accuracy | Recommended For |
@@ -215,6 +233,7 @@ Models are stored in `~/Library/Application Support/ChitChat/Models/` and can be
 | Whisper models | `~/Library/Application Support/ChitChat/Models/` |
 | App settings | `~/Library/Application Support/ChitChat/settings.json` |
 | Voice profiles | `~/Library/Application Support/ChitChat/VoiceProfiles/` |
+| Noise gate calibration | UserDefaults (`calibratedNoiseFloorDb`, `calibratedSpeechLevelDb`, `calibratedSNR`) |
 | Deepgram API key | macOS Keychain (key: `deepgram_api_key`) |
 | Logs | Console.app, filter by `com.justinkalicharan.chitchat` |
 

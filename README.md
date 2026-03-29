@@ -12,10 +12,11 @@ A native macOS menu bar app that transcribes your voice and injects text directl
 - **Smart noise filtering** — Automatically strips whisper.cpp annotations like `[MUSIC]`, `[BIRDS CHIRPING]`, `[BLANK_AUDIO]` so only your speech appears.
 - **Live transcription overlay** — Optional floating window shows what's being transcribed in real-time.
 - **Incremental injection** — Partial results appear as you speak, replacing in-place as transcription refines.
+- **Environment-calibrated noise gate** — Two-phase environment test measures background noise and speech level, then applies a per-buffer noise gate filter during dictation. Works in noisy cafes, open offices, or quiet rooms.
+- **Voice training** — Record 10 passages to teach Whisper your vocabulary and speaking patterns. Corrections are applied automatically as post-processing. Training biases Whisper's model via initial prompt.
 - **Active model indicator** — Menu bar and settings show which engine/model is active and whether it's ready.
 - **Menu bar app** — Lives in your menu bar. No dock icon, no window clutter.
 - **Configurable hotkeys** — Set any key combination that works for your workflow.
-- **Audio environment testing** — Built-in tool to analyze your microphone setup and background noise.
 - **Automatic permission management** — Auto-detects and resets stale accessibility permissions after rebuilds.
 
 ## Requirements
@@ -75,7 +76,7 @@ xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Debug bui
 # Release build (required for Whisper performance)
 xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Release build
 
-# Run tests (27 tests, 8 suites)
+# Run tests (39 tests, 9 suites)
 cd Packages/ChitChatCore && swift test
 ```
 
