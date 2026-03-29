@@ -1,0 +1,38 @@
+import Foundation
+import Testing
+@testable import ChitChatCore
+
+@Suite("SettingsManager Tests")
+struct SettingsManagerTests {
+    @Test("Loads default settings when no saved data exists")
+    func loadsDefaults() {
+        let defaults = UserDefaults(suiteName: "test-\(UUID().uuidString)")!
+        let manager = SettingsManager(defaults: defaults)
+        #expect(manager.settings.transcriptionEngine == .deepgram)
+        #expect(manager.settings.hotkeyMode == .pushToTalk)
+        #expect(manager.settings.launchAtLogin == false)
+    }
+
+    @Test("Persists settings across instances")
+    func persistsSettings() {
+        let suiteName = "test-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+
+        let manager1 = SettingsManager(defaults: defaults)
+        manager1.update { $0.transcriptionEngine = .whisperCpp }
+        manager1.update { $0.launchAtLogin = true }
+
+        let manager2 = SettingsManager(defaults: defaults)
+        #expect(manager2.settings.transcriptionEngine == .whisperCpp)
+        #expect(manager2.settings.launchAtLogin == true)
+    }
+
+    @Test("Reset to defaults clears custom settings")
+    func resetToDefaults() {
+        let defaults = UserDefaults(suiteName: "test-\(UUID().uuidString)")!
+        let manager = SettingsManager(defaults: defaults)
+        manager.update { $0.transcriptionEngine = .whisperCpp }
+        manager.resetToDefaults()
+        #expect(manager.settings.transcriptionEngine == .deepgram)
+    }
+}

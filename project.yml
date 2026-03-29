@@ -1,0 +1,57 @@
+name: ChitChat
+options:
+  bundleIdPrefix: com.justinkalicharan
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16.0"
+  generateEmptyDirectories: true
+  groupSortPosition: top
+
+packages:
+  ChitChatCore:
+    path: Packages/ChitChatCore
+
+targets:
+  ChitChat:
+    type: application
+    platform: macOS
+    sources:
+      - path: ChitChat
+        excludes:
+          - "**/*.plist"
+          - "**/*.entitlements"
+    dependencies:
+      - package: ChitChatCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.justinkalicharan.chitchat
+        PRODUCT_NAME: ChitChat
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        INFOPLIST_FILE: ChitChat/Info.plist
+        CODE_SIGN_ENTITLEMENTS: ChitChat/ChitChat.entitlements
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ENABLE_HARDENED_RUNTIME: true
+        COMBINE_HIDPI_IMAGES: true
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+        ENABLE_APP_SANDBOX: false
+      configs:
+        Debug:
+          SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "DEBUG"
+        Release:
+          SWIFT_OPTIMIZATION_LEVEL: "-O"
+
+  ChitChatTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: ChitChatTests
+    dependencies:
+      - target: ChitChat
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.justinkalicharan.chitchat.tests
+        SWIFT_VERSION: "5.9"

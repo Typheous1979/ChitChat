@@ -1,0 +1,652 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		001D1E8E961D942261CCA859 /* MacAudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6EA04CD049CFF14960712EE /* MacAudioCaptureService.swift */; };
+		041165D80168DFB9BF5CC6B9 /* CompletionStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83FE87D3A45CB173585FC845 /* CompletionStepView.swift */; };
+		0AD3DD778E331007CAE10A4A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 967436EF053F5BA0B0E203CD /* SettingsView.swift */; };
+		123C23986F60CE7D228D3561 /* ServiceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DC2EBB47DFF4682D41A4 /* ServiceContainer.swift */; };
+		1252BE3DF5D1ABD04B3925E8 /* MacHotkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3907982D2D498FCAAC6608EC /* MacHotkeyService.swift */; };
+		23740BF30E81F37FD66C88AE /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A8AB6774F8E896A8FD6F05 /* MenuBarView.swift */; };
+		2B186CC3C14F1088F7124F17 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725D0C3DB2B44C4A873E48F5 /* StatusBarController.swift */; };
+		2C878312E52C1A3FC4941FD3 /* MacTextInjectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DCECC4521C27AD690DC093 /* MacTextInjectionService.swift */; };
+		325EED918754F3667CA771AD /* EnvironmentTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E7B1C29198825C42BB8BF5 /* EnvironmentTestView.swift */; };
+		3C1186E65AB50BBC46331E54 /* AudioSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEC2142270E60B02883171B /* AudioSettingsView.swift */; };
+		42D62F32821CB2747BFA0E04 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D3D243A72807F76306118A /* AboutView.swift */; };
+		45C9FDBE0642575263F947A1 /* MacAccessibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08BA4552307B622D671E8A6F /* MacAccessibilityService.swift */; };
+		48EAC8EE7A1F1ACF30BDDC88 /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348EF1C49EAC908B614C9A4F /* WaveformView.swift */; };
+		52139154A115D60E271D7FBA /* TranscriptionSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6B4DD4D1D163330C666438 /* TranscriptionSettingsView.swift */; };
+		53076A16B8134FD69D6E2D3D /* TranscriptionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF4F1EFE88885DF0294E3F2 /* TranscriptionOverlayView.swift */; };
+		5833171A1C1CC96D90C0513A /* MicrophoneSetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1050A1273C830C391056D2C1 /* MicrophoneSetupStepView.swift */; };
+		5A6932E0B2F1102020C0F5D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58FC5CD2465CD5A140873F0E /* Assets.xcassets */; };
+		660E284763406C684917F2E2 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97D543AE70C6ADCF667C948 /* GeneralSettingsView.swift */; };
+		67586E374BE747058034EE9A /* HotkeySetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8BE65DB650F4BDDE3DE289 /* HotkeySetupStepView.swift */; };
+		68CA7A5516287D1AF5202FFE /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC1563FE66670CC6AD95BF1 /* AppState.swift */; };
+		6A86C64CD66BCEF91C2F04D5 /* ChitChatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F54D15875731E75E5C3138B /* ChitChatApp.swift */; };
+		6F146FA485CC7E65134AA314 /* HotkeyRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC3C4A58029FF77250CEBE4 /* HotkeyRecorderView.swift */; };
+		79DF6BEC36AF84F6A194638E /* MacClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21EB4EA9860E892442A16ADB /* MacClipboardService.swift */; };
+		7EFB086FB7B4B58B2B284BE4 /* VoiceTrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B6F8261A18D72CAA694412 /* VoiceTrainingView.swift */; };
+		8E9895B5E1B9F81A4E5EBE15 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC17BDD95972E2A84CEB075 /* AppDelegate.swift */; };
+		A441F609715DB6D27F63298B /* PermissionsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAE7F99064758D150BA1BFD /* PermissionsStepView.swift */; };
+		A58CBF410172E42D0E1AB3F0 /* PermissionStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B9101EFC4136040C0783F8 /* PermissionStatusBadge.swift */; };
+		A65E6CBF7DA183F6B6B667D9 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D315D457246B9BEA76AE8BB5 /* OnboardingView.swift */; };
+		ACA5BB70E0736869DDCB62A1 /* TranscriptionOverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A899F5D48BD66723BD93ECF7 /* TranscriptionOverlayWindow.swift */; };
+		ADDB78340AE1DCC0B0B59021 /* AudioLevelMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71C90DCED225DB8685AE0D25 /* AudioLevelMeter.swift */; };
+		D367E271D695EAF74B2FCC44 /* WelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E14424366817BD03308207DB /* WelcomeStepView.swift */; };
+		D8553DD7F1471EBB293E6A10 /* PlatformCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D835C2391F832DAE3C047F /* PlatformCapabilities.swift */; };
+		DC48C60A4A5AAD182A7819AD /* EngineSetupStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198F7FA1136D6B0BAE8389A8 /* EngineSetupStepView.swift */; };
+		DDB277520D8CFBC8D6EC9C3C /* ChitChatCore in Frameworks */ = {isa = PBXBuildFile; productRef = DB33AF0EDAD8B75FE3019ECB /* ChitChatCore */; };
+		E587C3CFBC28C56640B73C75 /* ChitChatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 960C24BC1EEC9AAA7CD81DCA /* ChitChatTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7782A423C0737AE21D862C66 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 52C70229BABC9D2A0DFF0B33 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 07CCAB02296BDE692B7D092F;
+			remoteInfo = ChitChat;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		08BA4552307B622D671E8A6F /* MacAccessibilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAccessibilityService.swift; sourceTree = "<group>"; };
+		1050A1273C830C391056D2C1 /* MicrophoneSetupStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneSetupStepView.swift; sourceTree = "<group>"; };
+		17B9101EFC4136040C0783F8 /* PermissionStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionStatusBadge.swift; sourceTree = "<group>"; };
+		17DCECC4521C27AD690DC093 /* MacTextInjectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTextInjectionService.swift; sourceTree = "<group>"; };
+		198F7FA1136D6B0BAE8389A8 /* EngineSetupStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineSetupStepView.swift; sourceTree = "<group>"; };
+		1FF4DC2EBB47DFF4682D41A4 /* ServiceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceContainer.swift; sourceTree = "<group>"; };
+		21EB4EA9860E892442A16ADB /* MacClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacClipboardService.swift; sourceTree = "<group>"; };
+		27D3D243A72807F76306118A /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		348EF1C49EAC908B614C9A4F /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
+		3907982D2D498FCAAC6608EC /* MacHotkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacHotkeyService.swift; sourceTree = "<group>"; };
+		3AC3C4A58029FF77250CEBE4 /* HotkeyRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyRecorderView.swift; sourceTree = "<group>"; };
+		4F54D15875731E75E5C3138B /* ChitChatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChitChatApp.swift; sourceTree = "<group>"; };
+		58FC5CD2465CD5A140873F0E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		602A9991C21A1D3E82DAF241 /* ChitChatCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ChitChatCore; path = Packages/ChitChatCore; sourceTree = SOURCE_ROOT; };
+		60A8AB6774F8E896A8FD6F05 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		62E7B1C29198825C42BB8BF5 /* EnvironmentTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentTestView.swift; sourceTree = "<group>"; };
+		69B6F8261A18D72CAA694412 /* VoiceTrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceTrainingView.swift; sourceTree = "<group>"; };
+		71C90DCED225DB8685AE0D25 /* AudioLevelMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioLevelMeter.swift; sourceTree = "<group>"; };
+		725D0C3DB2B44C4A873E48F5 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		7DC17BDD95972E2A84CEB075 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		83FE87D3A45CB173585FC845 /* CompletionStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionStepView.swift; sourceTree = "<group>"; };
+		8C6B4DD4D1D163330C666438 /* TranscriptionSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionSettingsView.swift; sourceTree = "<group>"; };
+		960C24BC1EEC9AAA7CD81DCA /* ChitChatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChitChatTests.swift; sourceTree = "<group>"; };
+		967436EF053F5BA0B0E203CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9A8BE65DB650F4BDDE3DE289 /* HotkeySetupStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeySetupStepView.swift; sourceTree = "<group>"; };
+		A899F5D48BD66723BD93ECF7 /* TranscriptionOverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionOverlayWindow.swift; sourceTree = "<group>"; };
+		B97D543AE70C6ADCF667C948 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
+		BBC2404D0098654D0FF50584 /* ChitChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChitChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BFC1563FE66670CC6AD95BF1 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		BFEC2142270E60B02883171B /* AudioSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSettingsView.swift; sourceTree = "<group>"; };
+		CDF4F1EFE88885DF0294E3F2 /* TranscriptionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionOverlayView.swift; sourceTree = "<group>"; };
+		CEFFE0EF532E67350E676807 /* ChitChatTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChitChatTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0D835C2391F832DAE3C047F /* PlatformCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformCapabilities.swift; sourceTree = "<group>"; };
+		D315D457246B9BEA76AE8BB5 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		E14424366817BD03308207DB /* WelcomeStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStepView.swift; sourceTree = "<group>"; };
+		E6EA04CD049CFF14960712EE /* MacAudioCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAudioCaptureService.swift; sourceTree = "<group>"; };
+		EFAE7F99064758D150BA1BFD /* PermissionsStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsStepView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F5A32A939DB519A704EEB251 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DDB277520D8CFBC8D6EC9C3C /* ChitChatCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		09BDEF59BAA6741CC78924E1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BBC2404D0098654D0FF50584 /* ChitChat.app */,
+				CEFFE0EF532E67350E676807 /* ChitChatTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1164091DF01CCFB374B6379A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				08BA4552307B622D671E8A6F /* MacAccessibilityService.swift */,
+				E6EA04CD049CFF14960712EE /* MacAudioCaptureService.swift */,
+				21EB4EA9860E892442A16ADB /* MacClipboardService.swift */,
+				3907982D2D498FCAAC6608EC /* MacHotkeyService.swift */,
+				17DCECC4521C27AD690DC093 /* MacTextInjectionService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		308118894A5907FCF188E1EB /* Platform */ = {
+			isa = PBXGroup;
+			children = (
+				D0D835C2391F832DAE3C047F /* PlatformCapabilities.swift */,
+				1FF4DC2EBB47DFF4682D41A4 /* ServiceContainer.swift */,
+			);
+			path = Platform;
+			sourceTree = "<group>";
+		};
+		4D585ADC6F0456A5C8E5A58D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				58FC5CD2465CD5A140873F0E /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		4FF793CB8AC7E5B1306CD31E /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				27D3D243A72807F76306118A /* AboutView.swift */,
+				BFEC2142270E60B02883171B /* AudioSettingsView.swift */,
+				62E7B1C29198825C42BB8BF5 /* EnvironmentTestView.swift */,
+				B97D543AE70C6ADCF667C948 /* GeneralSettingsView.swift */,
+				967436EF053F5BA0B0E203CD /* SettingsView.swift */,
+				8C6B4DD4D1D163330C666438 /* TranscriptionSettingsView.swift */,
+				69B6F8261A18D72CAA694412 /* VoiceTrainingView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		66CB15BAE56EA0B930299810 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				71C90DCED225DB8685AE0D25 /* AudioLevelMeter.swift */,
+				3AC3C4A58029FF77250CEBE4 /* HotkeyRecorderView.swift */,
+				17B9101EFC4136040C0783F8 /* PermissionStatusBadge.swift */,
+				348EF1C49EAC908B614C9A4F /* WaveformView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		717A5E67979A56B2F5F7A0E1 /* Overlay */ = {
+			isa = PBXGroup;
+			children = (
+				CDF4F1EFE88885DF0294E3F2 /* TranscriptionOverlayView.swift */,
+				A899F5D48BD66723BD93ECF7 /* TranscriptionOverlayWindow.swift */,
+			);
+			path = Overlay;
+			sourceTree = "<group>";
+		};
+		8FB4300336A645258886064F /* ChitChat */ = {
+			isa = PBXGroup;
+			children = (
+				F91B82462E4C6169418E3538 /* App */,
+				308118894A5907FCF188E1EB /* Platform */,
+				4D585ADC6F0456A5C8E5A58D /* Resources */,
+				1164091DF01CCFB374B6379A /* Services */,
+				E35DF388764D9CEE57706A31 /* UI */,
+			);
+			path = ChitChat;
+			sourceTree = "<group>";
+		};
+		91D202BD64F7CA6DE3534E75 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				602A9991C21A1D3E82DAF241 /* ChitChatCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		AEC81C1534D33A3B348B8E1B = {
+			isa = PBXGroup;
+			children = (
+				8FB4300336A645258886064F /* ChitChat */,
+				CF78A3E5F52F1FECDB706CEE /* ChitChatTests */,
+				91D202BD64F7CA6DE3534E75 /* Packages */,
+				09BDEF59BAA6741CC78924E1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CF78A3E5F52F1FECDB706CEE /* ChitChatTests */ = {
+			isa = PBXGroup;
+			children = (
+				960C24BC1EEC9AAA7CD81DCA /* ChitChatTests.swift */,
+			);
+			path = ChitChatTests;
+			sourceTree = "<group>";
+		};
+		DDDF3F685A20DB42AEB55036 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				83FE87D3A45CB173585FC845 /* CompletionStepView.swift */,
+				198F7FA1136D6B0BAE8389A8 /* EngineSetupStepView.swift */,
+				9A8BE65DB650F4BDDE3DE289 /* HotkeySetupStepView.swift */,
+				1050A1273C830C391056D2C1 /* MicrophoneSetupStepView.swift */,
+				D315D457246B9BEA76AE8BB5 /* OnboardingView.swift */,
+				EFAE7F99064758D150BA1BFD /* PermissionsStepView.swift */,
+				E14424366817BD03308207DB /* WelcomeStepView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		E35DF388764D9CEE57706A31 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				66CB15BAE56EA0B930299810 /* Components */,
+				E8879EA11958E09E0ECB0168 /* MenuBar */,
+				DDDF3F685A20DB42AEB55036 /* Onboarding */,
+				717A5E67979A56B2F5F7A0E1 /* Overlay */,
+				4FF793CB8AC7E5B1306CD31E /* Settings */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		E8879EA11958E09E0ECB0168 /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				60A8AB6774F8E896A8FD6F05 /* MenuBarView.swift */,
+				725D0C3DB2B44C4A873E48F5 /* StatusBarController.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		F91B82462E4C6169418E3538 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				7DC17BDD95972E2A84CEB075 /* AppDelegate.swift */,
+				BFC1563FE66670CC6AD95BF1 /* AppState.swift */,
+				4F54D15875731E75E5C3138B /* ChitChatApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		07CCAB02296BDE692B7D092F /* ChitChat */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 451DB033A6662742235E16F6 /* Build configuration list for PBXNativeTarget "ChitChat" */;
+			buildPhases = (
+				ED06C4537B383FDB26AAA4F9 /* Sources */,
+				7829DF1AAB59A52B84040A05 /* Resources */,
+				F5A32A939DB519A704EEB251 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChitChat;
+			packageProductDependencies = (
+				DB33AF0EDAD8B75FE3019ECB /* ChitChatCore */,
+			);
+			productName = ChitChat;
+			productReference = BBC2404D0098654D0FF50584 /* ChitChat.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B540D2D9D34724BFC021048D /* ChitChatTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 768FA8F3472215AD6EC4BA9A /* Build configuration list for PBXNativeTarget "ChitChatTests" */;
+			buildPhases = (
+				C7E3F393DE083CF518C07FF7 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E29C3D8DFBBA9766AAFF8693 /* PBXTargetDependency */,
+			);
+			name = ChitChatTests;
+			packageProductDependencies = (
+			);
+			productName = ChitChatTests;
+			productReference = CEFFE0EF532E67350E676807 /* ChitChatTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		52C70229BABC9D2A0DFF0B33 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = F0699D1600EC70197584615D /* Build configuration list for PBXProject "ChitChat" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = AEC81C1534D33A3B348B8E1B;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5857DF78D32E51B89F1804F5 /* XCLocalSwiftPackageReference "Packages/ChitChatCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 09BDEF59BAA6741CC78924E1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				07CCAB02296BDE692B7D092F /* ChitChat */,
+				B540D2D9D34724BFC021048D /* ChitChatTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7829DF1AAB59A52B84040A05 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A6932E0B2F1102020C0F5D8 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C7E3F393DE083CF518C07FF7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E587C3CFBC28C56640B73C75 /* ChitChatTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ED06C4537B383FDB26AAA4F9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				42D62F32821CB2747BFA0E04 /* AboutView.swift in Sources */,
+				8E9895B5E1B9F81A4E5EBE15 /* AppDelegate.swift in Sources */,
+				68CA7A5516287D1AF5202FFE /* AppState.swift in Sources */,
+				ADDB78340AE1DCC0B0B59021 /* AudioLevelMeter.swift in Sources */,
+				3C1186E65AB50BBC46331E54 /* AudioSettingsView.swift in Sources */,
+				6A86C64CD66BCEF91C2F04D5 /* ChitChatApp.swift in Sources */,
+				041165D80168DFB9BF5CC6B9 /* CompletionStepView.swift in Sources */,
+				DC48C60A4A5AAD182A7819AD /* EngineSetupStepView.swift in Sources */,
+				325EED918754F3667CA771AD /* EnvironmentTestView.swift in Sources */,
+				660E284763406C684917F2E2 /* GeneralSettingsView.swift in Sources */,
+				6F146FA485CC7E65134AA314 /* HotkeyRecorderView.swift in Sources */,
+				67586E374BE747058034EE9A /* HotkeySetupStepView.swift in Sources */,
+				45C9FDBE0642575263F947A1 /* MacAccessibilityService.swift in Sources */,
+				001D1E8E961D942261CCA859 /* MacAudioCaptureService.swift in Sources */,
+				79DF6BEC36AF84F6A194638E /* MacClipboardService.swift in Sources */,
+				1252BE3DF5D1ABD04B3925E8 /* MacHotkeyService.swift in Sources */,
+				2C878312E52C1A3FC4941FD3 /* MacTextInjectionService.swift in Sources */,
+				23740BF30E81F37FD66C88AE /* MenuBarView.swift in Sources */,
+				5833171A1C1CC96D90C0513A /* MicrophoneSetupStepView.swift in Sources */,
+				A65E6CBF7DA183F6B6B667D9 /* OnboardingView.swift in Sources */,
+				A58CBF410172E42D0E1AB3F0 /* PermissionStatusBadge.swift in Sources */,
+				A441F609715DB6D27F63298B /* PermissionsStepView.swift in Sources */,
+				D8553DD7F1471EBB293E6A10 /* PlatformCapabilities.swift in Sources */,
+				123C23986F60CE7D228D3561 /* ServiceContainer.swift in Sources */,
+				0AD3DD778E331007CAE10A4A /* SettingsView.swift in Sources */,
+				2B186CC3C14F1088F7124F17 /* StatusBarController.swift in Sources */,
+				53076A16B8134FD69D6E2D3D /* TranscriptionOverlayView.swift in Sources */,
+				ACA5BB70E0736869DDCB62A1 /* TranscriptionOverlayWindow.swift in Sources */,
+				52139154A115D60E271D7FBA /* TranscriptionSettingsView.swift in Sources */,
+				7EFB086FB7B4B58B2B284BE4 /* VoiceTrainingView.swift in Sources */,
+				48EAC8EE7A1F1ACF30BDDC88 /* WaveformView.swift in Sources */,
+				D367E271D695EAF74B2FCC44 /* WelcomeStepView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E29C3D8DFBBA9766AAFF8693 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 07CCAB02296BDE692B7D092F /* ChitChat */;
+			targetProxy = 7782A423C0737AE21D862C66 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		18D0A643451532798D5E963D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.justinkalicharan.chitchat.tests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ChitChat.app/Contents/MacOS/ChitChat";
+			};
+			name = Debug;
+		};
+		2EDB427F76FBF4292903EA52 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		30D1EF144C9E60F2F1FA75EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ChitChat/ChitChat.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = ChitChat/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.justinkalicharan.chitchat;
+				PRODUCT_NAME = ChitChat;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		490A0797732228AA65DD8193 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ChitChat/ChitChat.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = ChitChat/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.justinkalicharan.chitchat;
+				PRODUCT_NAME = ChitChat;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		545D4B29AD2BBECE306916AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.justinkalicharan.chitchat.tests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ChitChat.app/Contents/MacOS/ChitChat";
+			};
+			name = Release;
+		};
+		905B82591AD8A80EE2FBA9AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		451DB033A6662742235E16F6 /* Build configuration list for PBXNativeTarget "ChitChat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				30D1EF144C9E60F2F1FA75EF /* Debug */,
+				490A0797732228AA65DD8193 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		768FA8F3472215AD6EC4BA9A /* Build configuration list for PBXNativeTarget "ChitChatTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18D0A643451532798D5E963D /* Debug */,
+				545D4B29AD2BBECE306916AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F0699D1600EC70197584615D /* Build configuration list for PBXProject "ChitChat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				905B82591AD8A80EE2FBA9AC /* Debug */,
+				2EDB427F76FBF4292903EA52 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		5857DF78D32E51B89F1804F5 /* XCLocalSwiftPackageReference "Packages/ChitChatCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/ChitChatCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DB33AF0EDAD8B75FE3019ECB /* ChitChatCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChitChatCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 52C70229BABC9D2A0DFF0B33 /* Project object */;
+}
