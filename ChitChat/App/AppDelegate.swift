@@ -42,22 +42,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         transcriptionObserver?.cancel()
         let orchestrator = appState.services.dictationOrchestrator
 
-        // Observe state changes via the callback
-        let originalCallback = orchestrator.onStateChanged
-        orchestrator.onStateChanged = { [weak self, originalCallback] state in
-            originalCallback?(state)
+        // Single unified callback: handles both AppState updates and overlay/icon.
+        // Set fresh each time (no chaining) to prevent callback growth on multiple rebuilds.
+        orchestrator.onStateChanged = { [weak self] state in
             Task { @MainActor [weak self] in
                 guard let self else { return }
+
+                // AppState updates (recording flag, error display)
+                switch state {
+                case .recording:
+                    self.appState.isRecording = true
+                    self.appState.currentTranscription = ""
+                case .idle:
+                    self.appState.isRecording = false
+                    self.appState.currentTranscription = ""
+                case .error(let message):
+                    self.appState.isRecording = false
+                    self.appState.currentError = message
+                default:
+                    break
+                }
+
+                // Overlay and status bar icon
                 switch state {
                 case .recording:
                     self.statusBarController?.updateIcon(isRecording: true)
                     if self.appState.settingsManager.settings.showTranscriptionOverlay {
                         self.overlayWindow?.showAnimated()
                     }
-                case .idle:
-                    self.statusBarController?.updateIcon(isRecording: false)
-                    self.overlayWindow?.hideAnimated()
-                case .error:
+                case .idle, .error:
                     self.statusBarController?.updateIcon(isRecording: false)
                     self.overlayWindow?.hideAnimated()
                 default:

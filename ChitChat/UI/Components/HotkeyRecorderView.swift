@@ -136,8 +136,6 @@ private struct KeyCaptureRepresentable: NSViewRepresentable {
     func makeNSView(context: Context) -> KeyCaptureNSView {
         let view = KeyCaptureNSView()
         view.onKeyCaptured = onKeyCaptured
-        // Become first responder on next run loop tick
-        DispatchQueue.main.async { view.window?.makeFirstResponder(view) }
         return view
     }
 
@@ -148,10 +146,41 @@ private struct KeyCaptureRepresentable: NSViewRepresentable {
 
 private class KeyCaptureNSView: NSView {
     var onKeyCaptured: ((UInt16, UInt) -> Void)?
+    private var monitor: Any?
 
     override var acceptsFirstResponder: Bool { true }
 
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if window != nil {
+            window?.makeFirstResponder(self)
+
+            // Fallback: also install a local key event monitor in case first responder
+            // doesn't work (e.g., SwiftUI focus system fights back)
+            if monitor == nil {
+                monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+                    self?.handleKeyEvent(event)
+                    return nil // consume the event
+                }
+            }
+        }
+    }
+
+    override func removeFromSuperview() {
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
+        super.removeFromSuperview()
+    }
+
     override func keyDown(with event: NSEvent) {
+        handleKeyEvent(event)
+    }
+
+    private var captured = false
+
+    private func handleKeyEvent(_ event: NSEvent) {
+        guard !captured else { return }
+
         // Require at least one modifier (except for function keys)
         let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask).rawValue
         let isFunctionKey = (Int(event.keyCode) >= kVK_F1 && Int(event.keyCode) <= kVK_F12)
@@ -160,6 +189,10 @@ private class KeyCaptureNSView: NSView {
             || Int(event.keyCode) == kVK_F15
 
         if modifiers != 0 || isFunctionKey {
+            captured = true
+            // Remove monitor before firing callback (view will be removed)
+            if let monitor { NSEvent.removeMonitor(monitor) }
+            monitor = nil
             onKeyCaptured?(event.keyCode, modifiers)
         }
     }

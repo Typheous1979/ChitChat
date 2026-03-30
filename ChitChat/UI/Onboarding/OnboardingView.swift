@@ -53,7 +53,10 @@ struct OnboardingView: View {
                 } else {
                     Button("Get Started") {
                         appState.hasCompletedOnboarding = true
-                        Task { await appState.bootstrap() }
+                        Task {
+                            await appState.bootstrap()
+                            appState.onServicesRebuilt?()
+                        }
                         NSApp.keyWindow?.close()
                     }
                     .buttonStyle(.borderedProminent)

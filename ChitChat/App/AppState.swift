@@ -192,24 +192,8 @@ final class AppState {
     // MARK: - Orchestrator Callbacks
 
     private func setupOrchestratorCallbacks() {
-        services.dictationOrchestrator.onStateChanged = { [weak self] state in
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                switch state {
-                case .recording:
-                    self.isRecording = true
-                    self.currentTranscription = ""
-                case .idle:
-                    self.isRecording = false
-                    self.currentTranscription = ""
-                case .error(let message):
-                    self.isRecording = false
-                    self.currentError = message
-                default:
-                    break
-                }
-            }
-        }
+        // Note: onStateChanged is set by AppDelegate.startTranscriptionObserver()
+        // which handles both AppState updates and overlay/icon in a single callback.
 
         services.dictationOrchestrator.onTranscriptionCompleted = { [weak self] text, wasClipboardFallback in
             Task { @MainActor [weak self] in
