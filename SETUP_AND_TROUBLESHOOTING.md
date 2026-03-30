@@ -14,7 +14,7 @@ Download the latest `.dmg` from [GitHub Releases](https://github.com/Typheous197
 ### Terminal Install
 
 ```bash
-curl -L https://github.com/Typheous1979/ChitChat/releases/download/v1.0.0-beta.3/ChitChat-1.0.0-beta.3.dmg -o /tmp/ChitChat.dmg && \
+curl -L https://github.com/Typheous1979/ChitChat/releases/download/v1.0.0-beta.4/ChitChat-1.0.0-beta.4.dmg -o /tmp/ChitChat.dmg && \
   hdiutil attach /tmp/ChitChat.dmg && \
   cp -R "/Volumes/ChitChat/ChitChat.app" /Applications/ && \
   hdiutil detach "/Volumes/ChitChat" && \

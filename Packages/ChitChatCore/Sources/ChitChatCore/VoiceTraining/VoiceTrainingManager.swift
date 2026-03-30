@@ -116,26 +116,62 @@ public final class VoiceTrainingManager: @unchecked Sendable {
         updateProgress()
     }
 
+    /// Remove a single correction from the active profile.
+    public func deleteCorrection(key: String) throws {
+        guard var profile = currentProfile else { return }
+        profile.corrections.removeValue(forKey: key)
+        try profileStore.saveProfile(profile)
+        currentProfile = profile
+    }
+
     // MARK: - Analysis
 
     /// Find words that were mistranscribed.
+    /// Only creates corrections when the misheard word is similar to the expected word
+    /// (edit distance ≤ 2), preventing wild misalignments like "about" → "appointment".
     private func findCorrections(expected: String, transcribed: String) -> [(String, String)] {
         let expectedWords = expected.lowercased().split(separator: " ").map(String.init)
         let transcribedWords = transcribed.lowercased().split(separator: " ").map(String.init)
 
         var corrections: [(String, String)] = []
 
-        // Simple word-level diff: find substitutions
         let minCount = min(expectedWords.count, transcribedWords.count)
         for i in 0..<minCount {
             let exp = expectedWords[i].trimmingCharacters(in: .punctuationCharacters)
             let got = transcribedWords[i].trimmingCharacters(in: .punctuationCharacters)
-            if exp != got && !exp.isEmpty && !got.isEmpty {
+
+            // Skip single-char words and identical words
+            guard exp != got, exp.count >= 2, got.count >= 2 else { continue }
+
+            // Only correct similar words (edit distance ≤ 2)
+            // This prevents positional misalignment from creating nonsense corrections
+            if Self.editDistance(got, exp) <= 2 {
                 corrections.append((got, exp))
             }
         }
 
         return corrections
+    }
+
+    /// Levenshtein edit distance between two strings.
+    static func editDistance(_ a: String, _ b: String) -> Int {
+        let a = Array(a), b = Array(b)
+        let m = a.count, n = b.count
+        if m == 0 { return n }
+        if n == 0 { return m }
+
+        var prev = Array(0...n)
+        var curr = [Int](repeating: 0, count: n + 1)
+
+        for i in 1...m {
+            curr[0] = i
+            for j in 1...n {
+                let cost = a[i - 1] == b[j - 1] ? 0 : 1
+                curr[j] = min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost)
+            }
+            prev = curr
+        }
+        return prev[n]
     }
 
     /// Extract words that were correctly transcribed (for vocabulary boosting).

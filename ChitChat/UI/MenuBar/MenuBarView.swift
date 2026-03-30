@@ -128,23 +128,50 @@ struct MenuBarView: View {
     // MARK: - Recent Transcriptions
 
     private var recentTranscriptionsSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Recent")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+        let maxItems = appState.settingsManager.settings.maxRecentTranscriptions
+        let items = Array(appState.recentTranscriptions.prefix(maxItems))
 
-            if appState.recentTranscriptions.isEmpty {
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("Recent")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                Spacer()
+                if !items.isEmpty {
+                    Button("Clear All") {
+                        appState.recentTranscriptions.removeAll()
+                    }
+                    .font(.caption2)
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+
+            if items.isEmpty {
                 Text("No recent transcriptions")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-            } else {
-                ForEach(appState.recentTranscriptions.prefix(5)) { transcription in
+            } else if items.count <= 10 {
+                ForEach(items) { transcription in
                     TranscriptionRow(transcription: transcription)
                 }
+            } else {
+                // First 10 visible, rest in scrollable area
+                ForEach(items.prefix(10)) { transcription in
+                    TranscriptionRow(transcription: transcription)
+                }
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(items.dropFirst(10)) { transcription in
+                            TranscriptionRow(transcription: transcription)
+                        }
+                    }
+                }
+                .frame(maxHeight: 120)
             }
         }
         .padding(.bottom, 8)
@@ -221,7 +248,7 @@ private struct TranscriptionRow: View {
                 Text(transcription.text)
                     .font(.callout)
                     .lineLimit(1)
-                Text(transcription.timestamp, style: .relative)
+                Text(Self.minuteAgo(transcription.timestamp))
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -239,5 +266,16 @@ private struct TranscriptionRow: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 4)
         .contentShape(Rectangle())
+    }
+
+    static func minuteAgo(_ date: Date) -> String {
+        let minutes = Int(-date.timeIntervalSinceNow / 60)
+        if minutes < 1 { return "Just now" }
+        if minutes == 1 { return "1 min ago" }
+        if minutes < 60 { return "\(minutes) min ago" }
+        let hours = minutes / 60
+        if hours == 1 { return "1 hour ago" }
+        if hours < 24 { return "\(hours) hours ago" }
+        return date.formatted(date: .abbreviated, time: .shortened)
     }
 }

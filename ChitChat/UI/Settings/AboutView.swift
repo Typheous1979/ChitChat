@@ -2,22 +2,20 @@ import SwiftUI
 
 struct AboutView: View {
     var body: some View {
-        VStack(spacing: 16) {
-            Spacer()
-
+        VStack(spacing: 12) {
             if let appIcon = NSApp.applicationIconImage {
                 Image(nsImage: appIcon)
                     .resizable()
-                    .frame(width: 96, height: 96)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .frame(width: 80, height: 80)
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
             } else {
                 Image(systemName: "waveform.circle.fill")
-                    .font(.system(size: 64))
+                    .font(.system(size: 56))
                     .foregroundStyle(.tint)
             }
 
             Text("ChitChat")
-                .font(.title)
+                .font(.title2)
                 .fontWeight(.bold)
 
             Text("Voice-to-Text Dictation")
@@ -34,7 +32,7 @@ struct AboutView: View {
             Divider()
                 .padding(.horizontal, 60)
 
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 infoRow("macOS", value: PlatformCapabilities.osVersion)
                 infoRow("Architecture", value: PlatformCapabilities.isAppleSilicon ? "Apple Silicon" : "Intel")
                 infoRow("Microphone", badge: PlatformCapabilities.microphoneStatus)
@@ -45,7 +43,6 @@ struct AboutView: View {
             Divider()
                 .padding(.horizontal, 60)
 
-            // Links
             HStack(spacing: 16) {
                 Link("GitHub", destination: URL(string: "https://github.com/Typheous1979/ChitChat")!)
                 Link("Report Issue", destination: URL(string: "https://github.com/Typheous1979/ChitChat/issues")!)
@@ -54,7 +51,6 @@ struct AboutView: View {
 
             Spacer()
 
-            // Acknowledgements
             VStack(spacing: 2) {
                 Text("Built with Deepgram and Whisper")
                     .font(.caption2)
@@ -68,6 +64,7 @@ struct AboutView: View {
             }
             .padding(.bottom, 8)
         }
+        .padding(.top, 12)
         .frame(maxWidth: .infinity)
     }
 

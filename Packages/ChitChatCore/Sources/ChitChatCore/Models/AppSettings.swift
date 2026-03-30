@@ -39,6 +39,7 @@ public struct AppSettings: Codable, Sendable {
     public var activeVoiceProfileId: UUID? = nil
 
     // UI
+    public var maxRecentTranscriptions: Int = 20
     public var showTranscriptionOverlay: Bool = true
     public var overlayOpacity: Double = 0.9
     public var playFeedbackSounds: Bool = true

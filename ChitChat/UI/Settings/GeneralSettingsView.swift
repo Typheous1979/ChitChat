@@ -46,6 +46,14 @@ struct GeneralSettingsView: View {
                 Toggle("Add trailing space", isOn: Bindable(appState.settingsManager).settings.addTrailingSpace)
             }
 
+            Section("History") {
+                Picker("Max recent transcriptions", selection: Bindable(appState.settingsManager).settings.maxRecentTranscriptions) {
+                    ForEach([10, 20, 30, 40, 50], id: \.self) { count in
+                        Text("\(count)").tag(count)
+                    }
+                }
+            }
+
             Section("Speech Cleanup") {
                 Toggle("Idle Talk Reduction", isOn: Bindable(appState.settingsManager).settings.idleTalkReduction)
                 Text("Removes filler words like \"um\", \"uh\", and \"you know\" from transcription results.")

@@ -264,16 +264,17 @@ All use `@unchecked Sendable` with `NSLock` for manual thread safety.
 1. User creates a voice profile and records 10 passages from `TrainingPrompts.all`
 2. Each recording is transcribed by the active engine, compared word-by-word to expected text
 3. `VoiceTrainingManager.recordTrainingSample()` builds:
-   - **Corrections dictionary**: `[misheardWord: correctWord]` — applied as post-processing
+   - **Corrections dictionary**: `[misheardWord: correctWord]` — only words with Levenshtein edit distance ≤ 2 (prevents misalignment noise like "about" → "appointment")
    - **Custom vocabulary**: correctly transcribed words (>3 chars)
    - **Initial prompt**: actual passage texts with corrections applied (whisper.cpp's `initial_prompt` needs example sentences, not vocabulary lists)
 4. On completion, `ServiceContainer` loads the profile and applies both prompt and corrections
+5. Users can review and delete individual corrections in the Training UI
 
 ### How Training Improves Transcription
 
 Two mechanisms:
 - **Whisper initial_prompt biasing**: `WhisperCppService.setInitialPrompt()` sets `whisper_full_params.initial_prompt` with example sentences, conditioning the model toward the user's vocabulary and speaking patterns
-- **Corrections post-processing**: `DictationOrchestrator.handleTranscriptionResult()` replaces known misheard words before text injection
+- **Corrections post-processing**: `DictationOrchestrator.handleTranscriptionResult()` replaces known misheard words using word-boundary regex (not substring replacement) before text injection. Single-char corrections are skipped.
 
 ### Data Persistence
 

@@ -232,10 +232,18 @@ public final class DictationOrchestrator: @unchecked Sendable {
         var text = result.text
         let isFinal = result.isFinal
 
-        // Apply voice training corrections (replace misheard words with correct forms)
+        // Apply voice training corrections (replace misheard WORDS with correct forms)
+        // Uses word-boundary regex to avoid replacing substrings within other words
         if !corrections.isEmpty {
             for (wrong, correct) in corrections {
-                text = text.replacingOccurrences(of: wrong, with: correct, options: .caseInsensitive)
+                guard wrong.count >= 2 else { continue } // skip single-char corrections
+                if let regex = try? NSRegularExpression(
+                    pattern: "\\b\(NSRegularExpression.escapedPattern(for: wrong))\\b",
+                    options: .caseInsensitive
+                ) {
+                    let range = NSRange(text.startIndex..., in: text)
+                    text = regex.stringByReplacingMatches(in: text, range: range, withTemplate: correct)
+                }
             }
         }
 

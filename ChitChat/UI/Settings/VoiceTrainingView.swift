@@ -22,6 +22,7 @@ struct VoiceTrainingView: View {
         Form {
             profileSection
             trainingSection
+            correctionsSection
             environmentSection
         }
         .formStyle(.grouped)
@@ -371,6 +372,46 @@ struct VoiceTrainingView: View {
         })
         guard !expectedWords.isEmpty else { return 0 }
         return Double(expectedWords.intersection(transcribedWords).count) / Double(expectedWords.count)
+    }
+
+    // MARK: - Corrections Section
+
+    @ViewBuilder
+    private var correctionsSection: some View {
+        if let profile = trainingManager.currentProfile, !profile.corrections.isEmpty {
+            Section("Learned Corrections (\(profile.corrections.count))") {
+                Text("Words that Whisper misheard during training. Delete any incorrect entries.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                let sorted = profile.corrections.sorted(by: { $0.key < $1.key })
+                ForEach(sorted, id: \.key) { wrong, correct in
+                    HStack {
+                        Text(wrong)
+                            .font(.callout)
+                            .foregroundStyle(.red.opacity(0.8))
+                            .strikethrough()
+                        Image(systemName: "arrow.right")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                        Text(correct)
+                            .font(.callout)
+                            .foregroundStyle(.green)
+                        Spacer()
+                        Button {
+                            try? trainingManager.deleteCorrection(key: wrong)
+                            // Update orchestrator's live corrections
+                            appState.services.dictationOrchestrator.corrections = trainingManager.currentProfile?.corrections ?? [:]
+                        } label: {
+                            Image(systemName: "trash")
+                                .font(.caption)
+                        }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(.red)
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Environment Section

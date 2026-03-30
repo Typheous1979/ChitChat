@@ -8,9 +8,14 @@ final class MacTextInjectionService: TextInjectionService, @unchecked Sendable {
     private let eventSource: CGEventSource?
     private let lock = NSLock()
 
-    /// Inter-key delay in microseconds. Set to 0 for maximum injection speed.
-    /// CGEvent delivery is serialized by WindowServer; most apps handle 0-delay correctly.
-    private let interKeyDelay: UInt32 = 0
+    /// Inter-key delay in microseconds between each CGEvent keystroke.
+    /// 500μs is reliable across Terminal, browsers, and native apps.
+    /// Lower values (0-100μs) cause garbled output in Chromium browsers and Terminal.
+    private let interKeyDelay: UInt32 = 500
+
+    /// Extra pause in microseconds between delete phase and type phase during
+    /// incremental injection. Prevents backspaces and new characters from blending.
+    private let phaseGapDelay: UInt32 = 2000
 
     var supportsIncrementalInjection: Bool { true }
 
@@ -53,10 +58,15 @@ final class MacTextInjectionService: TextInjectionService, @unchecked Sendable {
         // Delete previous partial characters
         if characterCount > 0 {
             deleteCharacters(count: characterCount)
+            // Pause between delete and type phases so the target app
+            // finishes processing backspaces before new characters arrive
+            usleep(phaseGapDelay)
         }
 
         // Type the new text via CGEvent (works without AX permission)
-        typeViaKeyboardEvents(newText)
+        if !newText.isEmpty {
+            typeViaKeyboardEvents(newText)
+        }
 
         return InjectionResult(
             target: .focusedTextField,
