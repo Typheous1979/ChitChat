@@ -5,17 +5,21 @@
 Download the latest `.dmg` from [GitHub Releases](https://github.com/Typheous1979/ChitChat/releases).
 
 1. Open the DMG and drag **ChitChat** to **Applications**
-2. **First launch**: Right-click > **Open** (required once for unsigned beta)
-3. Grant Microphone and Accessibility permissions when prompted
+2. Remove the quarantine flag (required for unsigned beta):
+   ```bash
+   xattr -cr /Applications/ChitChat.app
+   ```
+3. Launch ChitChat and grant Microphone and Accessibility permissions when prompted
 
 ### Terminal Install
 
 ```bash
-curl -L https://github.com/Typheous1979/ChitChat/releases/download/v1.0.0-beta.1/ChitChat-1.0.0-beta.1.dmg -o /tmp/ChitChat.dmg && \
+curl -L https://github.com/Typheous1979/ChitChat/releases/download/v1.0.0-beta.2/ChitChat-1.0.0-beta.2.dmg -o /tmp/ChitChat.dmg && \
   hdiutil attach /tmp/ChitChat.dmg && \
   cp -R "/Volumes/ChitChat/ChitChat.app" /Applications/ && \
   hdiutil detach "/Volumes/ChitChat" && \
   rm /tmp/ChitChat.dmg && \
+  xattr -cr /Applications/ChitChat.app && \
   open /Applications/ChitChat.app
 ```
 
