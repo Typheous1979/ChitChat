@@ -162,6 +162,16 @@ struct MenuBarView: View {
                 .foregroundStyle(.primary)
                 .lineLimit(2)
             Spacer()
+            if message.contains("model") || message.contains("Settings") || message.contains("API") {
+                Button("Settings") {
+                    appState.currentError = nil
+                    if let openSettings = NSApp.value(forKey: "openSettings") as? () -> Void {
+                        openSettings()
+                    }
+                }
+                .font(.caption2)
+                .buttonStyle(.borderless)
+            }
             Button {
                 appState.currentError = nil
             } label: {

@@ -298,7 +298,7 @@ public final class DictationOrchestrator: @unchecked Sendable {
                 newText: text,
                 replacingLast: previousPartialCount
             )
-            lock.withLock { partialCharacterCount = text.count }
+            lock.withLock { partialCharacterCount = text.utf16.count }
         }
     }
 }

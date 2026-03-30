@@ -59,7 +59,7 @@ final class MacHotkeyService: HotkeyService, @unchecked Sendable {
     }
 
     func unregister() async {
-        lock.withLock {
+        let cont: AsyncStream<HotkeyEvent>.Continuation? = lock.withLock {
             if let ref = hotKeyRef {
                 UnregisterEventHotKey(ref)
                 hotKeyRef = nil
@@ -68,10 +68,12 @@ final class MacHotkeyService: HotkeyService, @unchecked Sendable {
                 RemoveEventHandler(handler)
                 eventHandlerRef = nil
             }
-            continuation?.finish()
+            let c = continuation
             continuation = nil
             _currentBinding = nil
+            return c
         }
+        cont?.finish()
     }
 
     func checkPermissions() async -> Bool {

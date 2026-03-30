@@ -35,8 +35,10 @@ final class AppState {
     // Whisper model manager (observable for download progress UI)
     let whisperModelManager = WhisperModelManager()
 
-    // Recent transcriptions
-    var recentTranscriptions: [RecentTranscription] = []
+    // Recent transcriptions (persisted to UserDefaults)
+    var recentTranscriptions: [RecentTranscription] = [] {
+        didSet { persistRecentTranscriptions() }
+    }
 
     // Error display
     var currentError: String? {
@@ -81,6 +83,9 @@ final class AppState {
     // MARK: - Initialization
 
     func bootstrap() async {
+        // Load persisted data
+        loadRecentTranscriptions()
+
         // Check permissions
         isMicrophoneGranted = await checkMicrophonePermission()
         refreshAccessibilityStatus()
@@ -275,6 +280,23 @@ final class AppState {
         }
     }
 
+    // MARK: - Recent Transcriptions Persistence
+
+    private static let recentTranscriptionsKey = "com.chitchat.recentTranscriptions"
+
+    func loadRecentTranscriptions() {
+        guard let data = UserDefaults.standard.data(forKey: Self.recentTranscriptionsKey),
+              let decoded = try? JSONDecoder().decode([RecentTranscription].self, from: data) else { return }
+        recentTranscriptions = decoded
+    }
+
+    private func persistRecentTranscriptions() {
+        let trimmed = Array(recentTranscriptions.prefix(20))
+        if let data = try? JSONEncoder().encode(trimmed) {
+            UserDefaults.standard.set(data, forKey: Self.recentTranscriptionsKey)
+        }
+    }
+
     // MARK: - Permissions
 
     private func checkMicrophonePermission() async -> Bool {
@@ -290,11 +312,18 @@ final class AppState {
     }
 }
 
-struct RecentTranscription: Identifiable {
-    let id = UUID()
+struct RecentTranscription: Identifiable, Codable {
+    let id: UUID
     let text: String
     let timestamp: Date
     let target: String
+
+    init(text: String, timestamp: Date, target: String) {
+        self.id = UUID()
+        self.text = text
+        self.timestamp = timestamp
+        self.target = target
+    }
 }
 
 enum ConnectionTestResult {

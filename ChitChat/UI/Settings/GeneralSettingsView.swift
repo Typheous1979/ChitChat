@@ -40,27 +40,17 @@ struct GeneralSettingsView: View {
                         }
                     }
                 Toggle("Show transcription overlay", isOn: Bindable(appState.settingsManager).settings.showTranscriptionOverlay)
-                Toggle("Play feedback sounds", isOn: Bindable(appState.settingsManager).settings.playFeedbackSounds)
-                    .disabled(true)
-                    .help("Coming soon")
             }
 
             Section("Text Injection") {
-                Picker("Method", selection: Bindable(appState.settingsManager).settings.injectionMethod) {
-                    ForEach(InjectionMethod.allCases, id: \.self) { method in
-                        Text(method.displayName).tag(method)
-                    }
-                }
-                .disabled(true)
-                .help("Coming soon")
-
-                Toggle("Auto-punctuation", isOn: Bindable(appState.settingsManager).settings.autoPunctuation)
-                    .disabled(true)
-                    .help("Coming soon — managed by transcription engine")
-                Toggle("Auto-capitalization", isOn: Bindable(appState.settingsManager).settings.autoCapitalization)
-                    .disabled(true)
-                    .help("Coming soon — managed by transcription engine")
                 Toggle("Add trailing space", isOn: Bindable(appState.settingsManager).settings.addTrailingSpace)
+            }
+
+            Section("Speech Cleanup") {
+                Toggle("Idle Talk Reduction", isOn: Bindable(appState.settingsManager).settings.idleTalkReduction)
+                Text("Removes filler words like \"um\", \"uh\", and \"you know\" from transcription results.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Permissions") {

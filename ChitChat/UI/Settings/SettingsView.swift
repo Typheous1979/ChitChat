@@ -16,11 +16,6 @@ struct SettingsView: View {
                     Label("Audio", systemImage: "mic")
                 }
 
-            AdvancedFeaturesView()
-                .tabItem {
-                    Label("Advanced", systemImage: "wand.and.stars")
-                }
-
             TranscriptionSettingsView()
                 .tabItem {
                     Label("Transcription", systemImage: "text.bubble")
@@ -37,6 +32,6 @@ struct SettingsView: View {
                 }
         }
         .environment(appState)
-        .frame(width: 520, height: 400)
+        .frame(minWidth: 520, maxWidth: 520, minHeight: 450, maxHeight: 600)
     }
 }

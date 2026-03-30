@@ -22,10 +22,6 @@ struct AboutView: View {
                 Text("Version \(version) (\(build))")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
-            } else {
-                Text("Version 1.0.0")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
             }
 
             Divider()
@@ -39,13 +35,31 @@ struct AboutView: View {
             }
             .padding(.horizontal, 60)
 
+            Divider()
+                .padding(.horizontal, 60)
+
+            // Links
+            HStack(spacing: 16) {
+                Link("GitHub", destination: URL(string: "https://github.com/Typheous1979/ChitChat")!)
+                Link("Report Issue", destination: URL(string: "https://github.com/Typheous1979/ChitChat/issues")!)
+            }
+            .font(.caption)
+
             Spacer()
 
-            Text("Built with Deepgram and Whisper")
-                .font(.caption2)
-                .foregroundStyle(.quaternary)
-
-            Spacer()
+            // Acknowledgements
+            VStack(spacing: 2) {
+                Text("Built with Deepgram and Whisper")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Text("whisper.cpp (MIT) via SwiftWhisper")
+                    .font(.caption2)
+                    .foregroundStyle(.quaternary)
+                Text("Copyright \u{00A9} 2026 Justin Kalicharan. All rights reserved.")
+                    .font(.caption2)
+                    .foregroundStyle(.quaternary)
+            }
+            .padding(.bottom, 8)
         }
         .frame(maxWidth: .infinity)
     }

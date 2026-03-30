@@ -49,6 +49,7 @@ struct OnboardingView: View {
                         withAnimation { currentStep += 1 }
                     }
                     .buttonStyle(.borderedProminent)
+                    .disabled(!canContinue)
                 } else {
                     Button("Get Started") {
                         appState.hasCompletedOnboarding = true
@@ -59,6 +60,26 @@ struct OnboardingView: View {
                 }
             }
             .padding(20)
+        }
+    }
+
+    /// Gate: require permissions (step 1) and engine config (step 3) before advancing.
+    private var canContinue: Bool {
+        switch currentStep {
+        case 1:
+            // Permissions step — require at least microphone
+            return appState.isMicrophoneGranted
+        case 3:
+            // Engine setup — require API key or downloaded model
+            let engine = appState.settingsManager.settings.transcriptionEngine
+            if engine == .deepgram {
+                let key = appState.services.keychain.get("deepgram_api_key") ?? ""
+                return !key.isEmpty
+            } else {
+                return appState.whisperModelManager.isModelDownloaded(appState.settingsManager.settings.whisperModel)
+            }
+        default:
+            return true
         }
     }
 }
