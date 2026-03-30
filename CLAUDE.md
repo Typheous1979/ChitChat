@@ -17,7 +17,7 @@ xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Release b
 # Build ChitChatCore package only
 cd Packages/ChitChatCore && swift build
 
-# Run all ChitChatCore tests (42 tests, 9 suites)
+# Run all ChitChatCore tests (62 tests, 10 suites)
 cd Packages/ChitChatCore && swift test
 
 # Run a single test suite

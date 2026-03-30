@@ -1,6 +1,27 @@
 # Setup and Troubleshooting Guide
 
-## Prerequisites
+## Installing from Release (Recommended)
+
+Download the latest `.dmg` from [GitHub Releases](https://github.com/Typheous1979/ChitChat/releases).
+
+1. Open the DMG and drag **ChitChat** to **Applications**
+2. **First launch**: Right-click > **Open** (required once for unsigned beta)
+3. Grant Microphone and Accessibility permissions when prompted
+
+### Terminal Install
+
+```bash
+curl -L https://github.com/Typheous1979/ChitChat/releases/download/v1.0.0-beta.1/ChitChat-1.0.0-beta.1.dmg -o /tmp/ChitChat.dmg && \
+  hdiutil attach /tmp/ChitChat.dmg && \
+  cp -R "/Volumes/ChitChat/ChitChat.app" /Applications/ && \
+  hdiutil detach "/Volumes/ChitChat" && \
+  rm /tmp/ChitChat.dmg && \
+  open /Applications/ChitChat.app
+```
+
+## Building from Source
+
+### Prerequisites
 
 - **macOS 14.0 (Sonoma)** or later
 - **Xcode 15+** with command-line tools installed
@@ -47,7 +68,7 @@ cd Packages/ChitChatCore && swift build
 ### Running Tests
 
 ```bash
-# All tests (42 tests, 9 suites)
+# All tests (62 tests, 10 suites)
 cd Packages/ChitChatCore && swift test
 
 # Single test suite

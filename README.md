@@ -26,15 +26,41 @@ A native macOS menu bar app that transcribes your voice and injects text directl
 - Accessibility permission (for text injection into other apps)
 - Deepgram API key (for cloud transcription) or a downloaded Whisper model (for offline)
 
+## Installation
+
+### Download (Recommended)
+
+Download the latest release from the [Releases page](https://github.com/Typheous1979/ChitChat/releases):
+
+1. Download `ChitChat-1.0.0-beta.1.dmg`
+2. Open the DMG and drag **ChitChat** to **Applications**
+3. Launch ChitChat from Applications
+4. **First launch**: Right-click the app > **Open** (required once to bypass Gatekeeper for unsigned beta)
+5. Grant **Microphone** and **Accessibility** permissions when prompted
+
+### Terminal Install (curl)
+
+```bash
+curl -L https://github.com/Typheous1979/ChitChat/releases/download/v1.0.0-beta.1/ChitChat-1.0.0-beta.1.dmg -o /tmp/ChitChat.dmg && \
+  hdiutil attach /tmp/ChitChat.dmg && \
+  cp -R "/Volumes/ChitChat/ChitChat.app" /Applications/ && \
+  hdiutil detach "/Volumes/ChitChat" && \
+  rm /tmp/ChitChat.dmg && \
+  open /Applications/ChitChat.app
+```
+
+### Build from Source
+
+See the [Setup and Troubleshooting Guide](SETUP_AND_TROUBLESHOOTING.md) for build instructions.
+
 ## Quick Start
 
-1. **Build and run** the app (see [Setup Guide](SETUP_AND_TROUBLESHOOTING.md))
-2. **Grant permissions** when prompted — Microphone and Accessibility
-3. **Configure a transcription engine** in Settings:
+1. **Grant permissions** when prompted — Microphone and Accessibility
+2. **Configure a transcription engine** in Settings:
    - For Deepgram: enter your API key
    - For Whisper: download a model (Tiny recommended to start)
-4. **Click into any text field**, press your hotkey (default: `Ctrl+Shift+Space`), speak, then release
-5. Your words appear in the text field
+3. **Click into any text field**, press your hotkey (default: `Ctrl+Shift+Space`), speak, then release
+4. Your words appear in the text field
 
 ## Project Structure
 
@@ -76,7 +102,7 @@ xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Debug bui
 # Release build (required for Whisper performance)
 xcodebuild -project ChitChat.xcodeproj -scheme ChitChat -configuration Release build
 
-# Run tests (42 tests, 9 suites)
+# Run tests (62 tests, 10 suites)
 cd Packages/ChitChatCore && swift test
 ```
 
