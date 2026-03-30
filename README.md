@@ -32,7 +32,7 @@ A native macOS menu bar app that transcribes your voice and injects text directl
 
 Download the latest release from the [Releases page](https://github.com/Typheous1979/ChitChat/releases):
 
-1. Download `ChitChat-1.0.0-beta.2.dmg`
+1. Download `ChitChat-1.0.0-beta.3.dmg`
 2. Open the DMG and drag **ChitChat** to **Applications**
 3. Remove the quarantine flag (required for unsigned beta):
    ```bash
@@ -44,7 +44,7 @@ Download the latest release from the [Releases page](https://github.com/Typheous
 ### Terminal Install (curl)
 
 ```bash
-curl -L https://github.com/Typheous1979/ChitChat/releases/download/v1.0.0-beta.2/ChitChat-1.0.0-beta.2.dmg -o /tmp/ChitChat.dmg && \
+curl -L https://github.com/Typheous1979/ChitChat/releases/download/v1.0.0-beta.3/ChitChat-1.0.0-beta.3.dmg -o /tmp/ChitChat.dmg && \
   hdiutil attach /tmp/ChitChat.dmg && \
   cp -R "/Volumes/ChitChat/ChitChat.app" /Applications/ && \
   hdiutil detach "/Volumes/ChitChat" && \

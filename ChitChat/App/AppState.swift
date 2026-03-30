@@ -90,11 +90,15 @@ final class AppState {
         isMicrophoneGranted = await checkMicrophonePermission()
         refreshAccessibilityStatus()
 
-        // If accessibility is not granted, clear any stale TCC entry (from a
-        // previous build with a different code signature) and re-prompt so the
-        // system creates a fresh entry for the current binary.
+        // If microphone not granted, reset stale TCC and re-request
+        if !isMicrophoneGranted {
+            resetTCCEntry(service: "Microphone")
+            isMicrophoneGranted = await AVCaptureDevice.requestAccess(for: .audio)
+        }
+
+        // If accessibility is not granted, clear stale TCC entry and re-prompt
         if !isAccessibilityGranted {
-            resetAccessibilityPermission()
+            resetTCCEntry(service: "Accessibility")
             services.accessibilityService.promptForAccessibility()
         }
 
@@ -113,22 +117,19 @@ final class AppState {
         isAccessibilityGranted = AXIsProcessTrusted()
     }
 
-    /// Clear stale accessibility TCC entry left by a previous build.
-    /// After a rebuild the code signature changes, making the old entry invalid.
-    /// Resetting lets `promptForAccessibility()` create a fresh entry.
-    private func resetAccessibilityPermission() {
-        Task.detached {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
-            process.arguments = ["reset", "Accessibility", "com.justinkalicharan.chitchat"]
-            process.standardOutput = FileHandle.nullDevice
-            process.standardError = FileHandle.nullDevice
-            try? process.run()
-            process.waitUntilExit()
-        }
+    /// Clear a stale TCC entry left by a previous build.
+    /// After a rebuild the code signature changes, making old entries invalid.
+    private func resetTCCEntry(service: String) {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+        process.arguments = ["reset", service, "com.justinkalicharan.chitchat"]
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        try? process.run()
+        process.waitUntilExit()
     }
 
-    /// Poll accessibility permission every second so we detect changes
+    /// Poll permissions every second so we detect changes
     /// made in System Settings without requiring an app restart.
     private func startPermissionPolling() {
         permissionPollTask?.cancel()
@@ -136,9 +137,17 @@ final class AppState {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(1))
                 guard let self else { break }
-                let granted = AXIsProcessTrusted()
-                if self.isAccessibilityGranted != granted {
-                    self.isAccessibilityGranted = granted
+
+                // Accessibility
+                let axGranted = AXIsProcessTrusted()
+                if self.isAccessibilityGranted != axGranted {
+                    self.isAccessibilityGranted = axGranted
+                }
+
+                // Microphone
+                let micGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+                if self.isMicrophoneGranted != micGranted {
+                    self.isMicrophoneGranted = micGranted
                 }
             }
         }
