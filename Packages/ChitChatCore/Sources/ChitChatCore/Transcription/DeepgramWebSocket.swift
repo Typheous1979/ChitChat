@@ -24,7 +24,7 @@ final class DeepgramWebSocket: @unchecked Sendable {
             URLQueryItem(name: "language", value: language),
             URLQueryItem(name: "smart_format", value: "true"),
             URLQueryItem(name: "interim_results", value: "true"),
-            URLQueryItem(name: "endpointing", value: "300"),
+            URLQueryItem(name: "endpointing", value: "100"),
             URLQueryItem(name: "vad_events", value: "true"),
             URLQueryItem(name: "encoding", value: "linear16"),
             URLQueryItem(name: "sample_rate", value: "\(sampleRate)"),

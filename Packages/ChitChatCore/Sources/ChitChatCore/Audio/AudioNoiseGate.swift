@@ -1,4 +1,5 @@
 import Foundation
+import Accelerate
 
 /// A noise gate filter calibrated from environment test results.
 /// Attenuates audio buffers whose RMS level is below the gate threshold,
@@ -59,18 +60,15 @@ public final class AudioNoiseGate: Sendable {
         return Data(count: buffer.count)
     }
 
-    /// Compute RMS (root-mean-square) amplitude of a Float32 PCM buffer.
+    /// Compute RMS (root-mean-square) amplitude of a Float32 PCM buffer using vDSP.
     public func computeRMS(_ buffer: Data) -> Float {
         let sampleCount = buffer.count / MemoryLayout<Float>.size
         guard sampleCount > 0 else { return 0 }
 
         return buffer.withUnsafeBytes { raw in
-            let samples = raw.bindMemory(to: Float.self)
+            let ptr = raw.bindMemory(to: Float.self)
             var sumSquares: Float = 0
-            for i in 0..<sampleCount {
-                let s = samples[i]
-                sumSquares += s * s
-            }
+            vDSP_svesq(ptr.baseAddress!, 1, &sumSquares, vDSP_Length(sampleCount))
             return sqrt(sumSquares / Float(sampleCount))
         }
     }

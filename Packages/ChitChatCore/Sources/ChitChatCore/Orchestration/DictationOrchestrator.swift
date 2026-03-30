@@ -126,16 +126,13 @@ public final class DictationOrchestrator: @unchecked Sendable {
         state = .processing
         onStateChanged?(state)
 
-        // Signal end of audio
+        // Signal end of audio (blocks until final inference completes)
         await transcription.finishAudio()
 
         // Stop audio capture
         await audioCapture.stopCapture()
 
-        // Give a brief moment for final results to arrive
-        try? await Task.sleep(for: .milliseconds(300))
-
-        // Cancel the pipeline task
+        // Cancel the pipeline task (finishAudio already delivered final results)
         pipelineTask?.cancel()
         pipelineTask = nil
 

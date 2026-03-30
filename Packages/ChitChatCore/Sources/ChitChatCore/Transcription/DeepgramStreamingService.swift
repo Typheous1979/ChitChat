@@ -164,14 +164,18 @@ public final class DeepgramStreamingService: TranscriptionService, @unchecked Se
 
     private func cleanUp() {
         receiveTask?.cancel()
-        lock.withLock {
+        // Extract continuation before lock to avoid deadlock
+        // (onTermination can re-enter cleanUp which re-enters the lock)
+        let cont: AsyncStream<TranscriptionResult>.Continuation? = lock.withLock {
+            let c = resultContinuation
+            resultContinuation = nil
             webSocket?.disconnect()
             webSocket = nil
             webSocketTask = nil
-            resultContinuation?.finish()
-            resultContinuation = nil
             _state = .idle
             receiveTask = nil
+            return c
         }
+        cont?.finish()
     }
 }

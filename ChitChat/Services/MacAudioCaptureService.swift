@@ -7,6 +7,7 @@ final class MacAudioCaptureService: AudioCaptureService, @unchecked Sendable {
     private var engine: AVAudioEngine?
     private var _selectedDevice: AudioDevice?
     private var _isCapturing = false
+    private var tapRemoved = false
     private var levelEngine: AVAudioEngine?
 
     var selectedDevice: AudioDevice? {
@@ -81,6 +82,7 @@ final class MacAudioCaptureService: AudioCaptureService, @unchecked Sendable {
         }
 
         let captureEngine = AVAudioEngine()
+        lock.withLock { tapRemoved = false }
 
         if let device = selectedDevice {
             try setInputDevice(engine: captureEngine, deviceUID: device.id)
@@ -157,9 +159,11 @@ final class MacAudioCaptureService: AudioCaptureService, @unchecked Sendable {
             }
 
             continuation.onTermination = { [weak self] _ in
-                inputNode.removeTap(onBus: 0)
-                captureEngine.stop()
                 self?.lock.withLock {
+                    guard self?.tapRemoved == false else { return }
+                    self?.tapRemoved = true
+                    inputNode.removeTap(onBus: 0)
+                    captureEngine.stop()
                     self?._isCapturing = false
                     self?.engine = nil
                 }
@@ -169,6 +173,8 @@ final class MacAudioCaptureService: AudioCaptureService, @unchecked Sendable {
 
     func stopCapture() async {
         lock.withLock {
+            guard !tapRemoved else { return }
+            tapRemoved = true
             engine?.inputNode.removeTap(onBus: 0)
             engine?.stop()
             engine = nil

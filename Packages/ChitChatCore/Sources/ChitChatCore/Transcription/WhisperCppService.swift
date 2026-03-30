@@ -7,7 +7,7 @@ import SwiftWhisper
 public final class WhisperCppService: TranscriptionService, @unchecked Sendable {
     private let lock = NSLock()
     private var _state: TranscriptionState = .idle
-    private var audioBuffer = Data()
+    private var audioBuffer: [Float] = []
     private var resultContinuation: AsyncStream<TranscriptionResult>.Continuation?
     private var cachedWhisper: Whisper?
     private var periodicTask: Task<Void, Never>?
@@ -25,11 +25,11 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
     private let modelPath: String?
 
     /// Seconds of audio to accumulate before the first partial inference.
-    private let minAudioForPartial: Double = 2.0
+    private let minAudioForPartial: Double = 1.0
     /// Seconds between successive partial inferences.
-    private let partialInterval: Double = 3.0
+    private let partialInterval: Double = 1.5
     /// Minimum new audio (in seconds) required to justify a new partial inference.
-    private let minNewAudioForPartial: Double = 1.0
+    private let minNewAudioForPartial: Double = 0.8
 
     public init(modelPath: String? = nil) {
         self.modelPath = modelPath
@@ -61,7 +61,7 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
 
         lock.withLock {
             _state = .listening
-            audioBuffer = Data()
+            audioBuffer = []
             isInferring = false
             lastPartialSampleCount = 0
         }
@@ -90,7 +90,10 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
     }
 
     public func feedAudio(_ buffer: Data) async {
-        lock.withLock { audioBuffer.append(buffer) }
+        let samples: [Float] = buffer.withUnsafeBytes { raw in
+            Array(raw.bindMemory(to: Float.self))
+        }
+        lock.withLock { audioBuffer.append(contentsOf: samples) }
     }
 
     public func finishAudio() async {
@@ -132,7 +135,7 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
         let continuation: AsyncStream<TranscriptionResult>.Continuation? = lock.withLock {
             let c = resultContinuation
             resultContinuation = nil
-            audioBuffer = Data()
+            audioBuffer = []
             _state = .idle
             return c
         }
@@ -177,8 +180,8 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
         guard canRun else { return }
         defer { lock.withLock { isInferring = false } }
 
-        let (audioData, prompt) = lock.withLock { (audioBuffer, _initialPrompt) }
-        guard let whisper = cachedWhisper, !audioData.isEmpty else { return }
+        let (frames, prompt) = lock.withLock { (audioBuffer, _initialPrompt) }
+        guard let whisper = cachedWhisper, !frames.isEmpty else { return }
 
         // Apply voice training prompt if available
         var promptCString: UnsafeMutablePointer<CChar>?
@@ -187,10 +190,9 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
             whisper.params.initial_prompt = UnsafePointer(promptCString!)
         }
 
-        // Convert Float32 PCM Data → [Float] for SwiftWhisper
-        let totalSamples = audioData.count / MemoryLayout<Float>.size
+        let totalSamples = frames.count
         guard totalSamples > 0 else {
-            promptCString?.deallocate()
+            free(promptCString)
             return
         }
 
@@ -199,23 +201,19 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
             let newSamples = totalSamples - lock.withLock({ lastPartialSampleCount })
             let minNewSamples = Int(minNewAudioForPartial * 16000)
             guard newSamples >= minNewSamples else {
-                promptCString?.deallocate()
+                free(promptCString)
                 return
             }
-        }
-
-        let frames: [Float] = audioData.withUnsafeBytes { raw in
-            let bound = raw.bindMemory(to: Float.self)
-            return Array(bound)
         }
 
         lock.withLock { lastPartialSampleCount = totalSamples }
 
         do {
+            // Pass [Float] directly — no per-inference copy needed
             let segments = try await whisper.transcribe(audioFrames: frames)
 
-            // Free C string AFTER transcribe completes (it runs on background queue)
-            promptCString?.deallocate()
+            // Free C string AFTER transcribe completes
+            free(promptCString)
             promptCString = nil
             let rawText = segments.map(\.text).joined()
                 .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -237,9 +235,18 @@ public final class WhisperCppService: TranscriptionService, @unchecked Sendable 
 
             Log.transcription.info("Whisper \(isFinal ? "final" : "partial", privacy: .public): \"\(text, privacy: .public)\"")
         } catch {
-            promptCString?.deallocate()
+            free(promptCString)
             if !Task.isCancelled {
                 Log.transcription.error("Whisper inference error: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+
+        // Trim buffer to last 25 seconds (whisper.cpp's effective window is 30s)
+        let maxSamples = 25 * 16000
+        lock.withLock {
+            if audioBuffer.count > maxSamples {
+                audioBuffer.removeFirst(audioBuffer.count - maxSamples)
+                lastPartialSampleCount = min(lastPartialSampleCount, audioBuffer.count)
             }
         }
     }

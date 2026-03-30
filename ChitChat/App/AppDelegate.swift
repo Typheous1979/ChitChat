@@ -16,6 +16,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarController = StatusBarController(appState: appState)
         overlayWindow = TranscriptionOverlayWindow()
 
+        appState.onServicesRebuilt = { [weak self] in
+            self?.startTranscriptionObserver()
+        }
+
         if appState.hasCompletedOnboarding {
             Task {
                 await appState.bootstrap()
@@ -33,7 +37,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Transcription Overlay
 
     /// Observe the orchestrator's state and current transcription to drive the overlay.
-    private func startTranscriptionObserver() {
+    /// Safe to call multiple times (cancels previous observer).
+    func startTranscriptionObserver() {
+        transcriptionObserver?.cancel()
         let orchestrator = appState.services.dictationOrchestrator
 
         // Observe state changes via the callback

@@ -8,8 +8,9 @@ final class MacTextInjectionService: TextInjectionService, @unchecked Sendable {
     private let eventSource: CGEventSource?
     private let lock = NSLock()
 
-    /// Small delay between key events to avoid overwhelming the target app.
-    private let interKeyDelay: UInt32 = 500 // microseconds
+    /// Inter-key delay in microseconds. Set to 0 for maximum injection speed.
+    /// CGEvent delivery is serialized by WindowServer; most apps handle 0-delay correctly.
+    private let interKeyDelay: UInt32 = 0
 
     var supportsIncrementalInjection: Bool { true }
 

@@ -112,13 +112,15 @@ final class AppState {
     /// After a rebuild the code signature changes, making the old entry invalid.
     /// Resetting lets `promptForAccessibility()` create a fresh entry.
     private func resetAccessibilityPermission() {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
-        process.arguments = ["reset", "Accessibility", "com.justinkalicharan.chitchat"]
-        process.standardOutput = FileHandle.nullDevice
-        process.standardError = FileHandle.nullDevice
-        try? process.run()
-        process.waitUntilExit()
+        Task.detached {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+            process.arguments = ["reset", "Accessibility", "com.justinkalicharan.chitchat"]
+            process.standardOutput = FileHandle.nullDevice
+            process.standardError = FileHandle.nullDevice
+            try? process.run()
+            process.waitUntilExit()
+        }
     }
 
     /// Poll accessibility permission every second so we detect changes
@@ -224,9 +226,13 @@ final class AppState {
 
     /// Call after saving a Deepgram API key or switching engines.
     /// Rebuilds the transcription coordinator and orchestrator with the new configuration.
+    /// Called after services are rebuilt — allows AppDelegate to rewire overlay/icon observers.
+    var onServicesRebuilt: (() -> Void)?
+
     func rebuildTranscription() {
         services.rebuildTranscription()
         setupOrchestratorCallbacks()
+        onServicesRebuilt?()
     }
 
     // MARK: - Audio Device Management
