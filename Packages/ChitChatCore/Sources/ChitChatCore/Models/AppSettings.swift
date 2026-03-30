@@ -26,6 +26,9 @@ public struct AppSettings: Codable, Sendable {
     public var calibratedSpeechLevelDb: Float? = nil
     public var calibratedSNR: Float? = nil
 
+    // Advanced Features
+    public var idleTalkReduction: Bool = false
+
     // Text Injection
     public var injectionMethod: InjectionMethod = .auto
     public var addTrailingSpace: Bool = true

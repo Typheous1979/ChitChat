@@ -17,6 +17,7 @@
 		2C878312E52C1A3FC4941FD3 /* MacTextInjectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DCECC4521C27AD690DC093 /* MacTextInjectionService.swift */; };
 		325EED918754F3667CA771AD /* EnvironmentTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E7B1C29198825C42BB8BF5 /* EnvironmentTestView.swift */; };
 		3C1186E65AB50BBC46331E54 /* AudioSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEC2142270E60B02883171B /* AudioSettingsView.swift */; };
+		AA1111111111111111111111 /* AdvancedFeaturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2222222222222222222222 /* AdvancedFeaturesView.swift */; };
 		42D62F32821CB2747BFA0E04 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D3D243A72807F76306118A /* AboutView.swift */; };
 		45C9FDBE0642575263F947A1 /* MacAccessibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08BA4552307B622D671E8A6F /* MacAccessibilityService.swift */; };
 		48EAC8EE7A1F1ACF30BDDC88 /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348EF1C49EAC908B614C9A4F /* WaveformView.swift */; };
@@ -85,6 +86,7 @@
 		BBC2404D0098654D0FF50584 /* ChitChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChitChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFC1563FE66670CC6AD95BF1 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		BFEC2142270E60B02883171B /* AudioSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSettingsView.swift; sourceTree = "<group>"; };
+		AA2222222222222222222222 /* AdvancedFeaturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedFeaturesView.swift; sourceTree = "<group>"; };
 		CDF4F1EFE88885DF0294E3F2 /* TranscriptionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionOverlayView.swift; sourceTree = "<group>"; };
 		CEFFE0EF532E67350E676807 /* ChitChatTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChitChatTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0D835C2391F832DAE3C047F /* PlatformCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformCapabilities.swift; sourceTree = "<group>"; };
@@ -148,7 +150,8 @@
 			isa = PBXGroup;
 			children = (
 				27D3D243A72807F76306118A /* AboutView.swift */,
-				BFEC2142270E60B02883171B /* AudioSettingsView.swift */,
+				AA2222222222222222222222 /* AdvancedFeaturesView.swift */,
+			BFEC2142270E60B02883171B /* AudioSettingsView.swift */,
 				62E7B1C29198825C42BB8BF5 /* EnvironmentTestView.swift */,
 				B97D543AE70C6ADCF667C948 /* GeneralSettingsView.swift */,
 				967436EF053F5BA0B0E203CD /* SettingsView.swift */,
@@ -364,7 +367,8 @@
 				8E9895B5E1B9F81A4E5EBE15 /* AppDelegate.swift in Sources */,
 				68CA7A5516287D1AF5202FFE /* AppState.swift in Sources */,
 				ADDB78340AE1DCC0B0B59021 /* AudioLevelMeter.swift in Sources */,
-				3C1186E65AB50BBC46331E54 /* AudioSettingsView.swift in Sources */,
+				AA1111111111111111111111 /* AdvancedFeaturesView.swift in Sources */,
+			3C1186E65AB50BBC46331E54 /* AudioSettingsView.swift in Sources */,
 				6A86C64CD66BCEF91C2F04D5 /* ChitChatApp.swift in Sources */,
 				041165D80168DFB9BF5CC6B9 /* CompletionStepView.swift in Sources */,
 				DC48C60A4A5AAD182A7819AD /* EngineSetupStepView.swift in Sources */,

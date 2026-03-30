@@ -16,6 +16,11 @@ struct SettingsView: View {
                     Label("Audio", systemImage: "mic")
                 }
 
+            AdvancedFeaturesView()
+                .tabItem {
+                    Label("Advanced", systemImage: "wand.and.stars")
+                }
+
             TranscriptionSettingsView()
                 .tabItem {
                     Label("Transcription", systemImage: "text.bubble")

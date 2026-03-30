@@ -38,6 +38,9 @@ public final class DictationOrchestrator: @unchecked Sendable {
     /// Applied as post-processing on transcription results before injection.
     public var corrections: [String: String] = [:]
 
+    /// Filler word filter for idle talk reduction.
+    private let fillerWordFilter = FillerWordFilter()
+
     /// Noise gate filter calibrated from environment test. Nil if not calibrated.
     public var noiseGate: AudioNoiseGate?
 
@@ -237,6 +240,23 @@ public final class DictationOrchestrator: @unchecked Sendable {
             for (wrong, correct) in corrections {
                 text = text.replacingOccurrences(of: wrong, with: correct, options: .caseInsensitive)
             }
+        }
+
+        // Apply idle talk reduction (remove filler words)
+        if settingsManager.settings.idleTalkReduction {
+            text = fillerWordFilter.apply(text)
+        }
+
+        // If text is empty after filtering (user only said fillers), clean up
+        if text.isEmpty {
+            if isFinal {
+                let previousPartialCount = lock.withLock { partialCharacterCount }
+                if previousPartialCount > 0 {
+                    _ = await textInjection.injectIncremental(newText: "", replacingLast: previousPartialCount)
+                    lock.withLock { partialCharacterCount = 0 }
+                }
+            }
+            return
         }
 
         currentTranscription = text
