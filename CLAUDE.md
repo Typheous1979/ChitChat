@@ -97,7 +97,7 @@ CGEvent Unicode keystrokes are always used for text injection — no automatic c
 - **Mic contention** — `MacAudioCaptureService` uses separate `AVAudioEngine` instances for level monitoring and capture. Always call `stopLevelMonitoring()` before `startCapture()` to avoid contention. Affects EnvironmentTestView and VoiceTrainingView.
 - **Whisper performance** — Always build **Release** when testing Whisper. Debug builds compile whisper.cpp without `-O3` optimization. Tiny model (75MB) recommended for best speed. Model cached after first load.
 - **Menu bar app** — `LSUIElement=true` in Info.plist. `NSApp.setActivationPolicy(.accessory)`. No dock icon.
-- **Accessibility auto-reset** — On startup, if accessibility is denied, the app automatically runs `tccutil reset Accessibility com.justinkalicharan.chitchat` to clear stale TCC entries from previous builds, then re-prompts. Polls every 1 second.
+- **Permission auto-reset** — On startup, if microphone or accessibility is denied, the app runs `tccutil reset {service} com.justinkalicharan.chitchat` to clear stale TCC entries from previous builds, then re-prompts. Both permissions polled every 1 second for real-time UI updates.
 - **Model readiness guard** — `AppState.isTranscriptionReady` blocks recording if Whisper is selected but no model is downloaded. Shows error message directing user to Settings.
 - **Reactive model status** — `WhisperModelManager.modelChangeCount` is an `@Observable` property incremented on download/delete. Views read it to trigger re-renders for filesystem-dependent state like `isModelDownloaded()`.
 - **Launch at login** — Uses `SMAppService.mainApp.register()/unregister()` via onChange handler. Takes effect immediately when toggled.
